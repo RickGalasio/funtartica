@@ -10,7 +10,7 @@ make
 ```  
 The advanced ./configure parameters:  
 ```bash
-./configure \<parameters\>  
+./configure <parameters>
 ```
 Parameters:  
 > -h,-help,--help  - This help message.  
