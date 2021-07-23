@@ -26,14 +26,16 @@ while [ 1 ]; do
   if [ "X$(echo $1| egrep '\-')" != "X" ]; then
     if [ "$1" == "--help" -o "$1" == "-h" -o "$1" == "-help" ] ; then
      echo "Syntax:"
-     echo "./configure <parameters>"
+     echo "./configure <parameters> <extra (gcc/clang) parameters>"
      echo ""
      echo "Parameters:"
      echo " -h,-help,--help  - This help message."
      echo " -c,--compiler [gcc|clang]  - Select compiler."
      echo " -d,--debug  - Enable debug mode."
+     echo " --no-debug - Disable debug mode."
      echo " -l,--lua [luajit|lua51|lua53]  - Select LUA version."
      echo " -m,--mem # Debug memory leak (sanitizer)."
+     echo " --no-mem  - Disable sanitizer memory leak debug."
      echo ""
      echo " * Note: all gcc and clang parameters are supported."
      exit 0
@@ -64,6 +66,12 @@ while [ 1 ]; do
       shift
       CC=$(which gcc clang | grep $1)
     fi
+    
+#    if [ "$1" == "--options" -o "$1" == "-o" ] ; then
+#      shift
+#      OPTS="$OPTS $1"
+#      echo OPTS:[$OPTS]
+#    fi
 
     if [ "X$(echo $1|egrep '\=')" != "X" ] ; then
       OPTS+=" $1"
