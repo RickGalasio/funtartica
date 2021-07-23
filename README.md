@@ -1,17 +1,17 @@
 # funtartica
 2D Game Engine with LUA scripts.
 
-
 # Compile
 
-The fastest compile:
-
+The fastest compile:  
+```bash
 ./configure  
 make
-
+```  
 The advanced ./configure parameters:  
+```bash
 ./configure \<parameters\>  
-
+```
 Parameters:  
 > -h,-help,--help  - This help message.  
 > -c,--compiler [gcc|clang]  - Select compiler.  
@@ -22,4 +22,6 @@ Parameters:
 > --no-mem  - Disable sanitizer memory leak debug.  
 
 # Run  
+```bash
 ./ge
+```
