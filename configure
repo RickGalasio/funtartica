@@ -24,27 +24,27 @@ while [ 1 ]; do
   fi
 
   if [ "X$(echo $1| egrep '\-')" != "X" ]; then
-    if [ "$1" == "--help" ] ; then
+    if [ "$1" == "--help" -o "$1" == "-h" -o "$1" == "-help" ] ; then
      echo "Syntax:"
      echo "./configure <parameters>"
      echo ""
      echo "Parameters:"
-     echo " --help # This help message."
-     echo " --compiler [gcc|clang] # compiler"
-     echo " --debug # debug mode (-g)"
-     echo " --lua [luajit|lua51|lua53] # LUA version"
-     echo " --mem # Debug memory leak (sanitzer)"
+     echo " -h,-help,--help  - This help message."
+     echo " -c,--compiler [gcc|clang]  - Select compiler."
+     echo " -d,--debug  - Enable debug mode."
+     echo " -l,--lua [luajit|lua51|lua53]  - Select LUA version."
+     echo " -m,--mem # Debug memory leak (sanitizer)."
      echo ""
-     echo " * note: all gcc and clang parameters are supported."
+     echo " * Note: all gcc and clang parameters are supported."
      exit 0
     fi
     
-    if [ "$1" == "--lua" ] ; then
+    if [ "$1" == "--lua" -o "$1" == "-l" ] ; then
       shift
       WLUA=$1
     fi
 
-    if [ "$1" == "--mem" ] ; then
+    if [ "$1" == "--mem" -o "$1" == "-m" ] ; then
       MEM="-fsanitize=address -fno-omit-frame-pointer -O3"
   #ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
       #DEBUG="-g -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope -O3"
@@ -53,14 +53,14 @@ while [ 1 ]; do
       MEM=""
     fi
 
-    if [ "$1" == "--debug" ] ; then
+    if [ "$1" == "--debug" -o "$1" == "-d" ] ; then
       DEBUG="-g"
     fi
     if [ "$1" == "--no-debug" ] ; then
       DEBUG=""
     fi
 
-    if [ "$1" == "--compiler" ] ; then
+    if [ "$1" == "--compiler" -o "$1" == "-c" ] ; then
       shift
       CC=$(which gcc clang | grep $1)
     fi
