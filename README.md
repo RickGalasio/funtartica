@@ -9,17 +9,17 @@ The fastest compile:
 ./configure  
 make
 
-The advanced ./configure parameters:
-./configure <parameters>
+The advanced ./configure parameters:  
+./configure \<parameters\>  
 
-Parameters:
- -h,-help,--help  - This help message.  
- -c,--compiler [gcc|clang]  - Select compiler.  
- -d,--debug  - Enable debug mode.  
- --no-debug - Disable debug mode.  
- -l,--lua [luajit|lua51|lua53]  - Select LUA version.  
- -m,--mem  - Debug memory leak (sanitizer).  
- --no-mem  - Disable sanitizer memory leak debug.  
+Parameters:  
+> -h,-help,--help  - This help message.  
+> -c,--compiler [gcc|clang]  - Select compiler.  
+> -d,--debug  - Enable debug mode.  
+> --no-debug - Disable debug mode.  
+> -l,--lua [luajit|lua51|lua53]  - Select LUA version.  
+> -m,--mem  - Debug memory leak (sanitizer).  
+> --no-mem  - Disable sanitizer memory leak debug.  
 
 # Run  
 ./ge
