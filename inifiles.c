@@ -250,6 +250,10 @@ bool ini_get_bool(char *sname_file, char *section, char *svalue,
 		return true;
 	}else if(!strcasecmp(xvar,"f")){
 		return false;
+	}else if(!strcasecmp(xvar,"positive")){
+		return true;
+	}else if(!strcasecmp(xvar,"negative")){
+		return false;
 	}else{
 	    return idefault;
 	}

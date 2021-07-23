@@ -1,17 +1,21 @@
 # funtartica
 2D Game Engine with LUA scripts.
 
-# Compile
+### Compile
 
 The fastest compile:  
+
 ```bash
 ./configure  
 make
-```  
+```
+
 The advanced ./configure parameters:  
+
 ```bash
 ./configure <parameters> <extra (gcc/clang) parameters>
 ```
+
 Parameters:  
 > -h,-help,--help  - This help message.  
 > -c,--compiler [gcc|clang]  - Select compiler.  
@@ -21,12 +25,74 @@ Parameters:
 > -m,--mem  - Debug memory leak (sanitizer).  
 > --no-mem  - Disable sanitizer memory leak debug.  
 
-# Run  
+### Run  
 ```bash
 ./ge
 ```
+# The config file (ge.ini)
+In the configuration file is where the game variables and settings will be assigned.
 
-### TODO LIST
+A file called ge.ini will be read. This file should be in the same folder as the funtartica game engine executable.
+
+This file is composed of sections, variables, and inline content.
+
+## Sections  
+Sections bounded by brackets: **[ section ]**.  
+
+## Variables  
+A variable is a named unit of data that is assigned a value. Values can be integers, strings, color values or Boolean logic values.  
+A variable name consists of one or more words written in lowercase, without spaces.  
+The name of a variable can be include numeric digits, but variable names cannot be started by a numeric digit.  
+# Boolean logic values can be **Negative** or **Positive**  
+Negative values:  
+**0**, **no**, **off**, **disable**, **unset**, **f**, **false** or **negative**.  
+
+Positive values:  
+**1**, **yes**, **on**, **enable**, **set**, **t**, **true** or **positive**.  
+
+# Color values:  
+**RR**,**GG**,**BB**,**MM**  - Where:  
+**RR** is the hexadecimal value of Red component of color.  
+**GG** is the hexadecimal value of Green component of color.  
+**BB** is the hexadecimal value of Blue component of color.  
+**MM** is the hexadevimal value os Mask of color (used in transparent elements).  
+Example:  
+```bash  
+terminalcolor=8a,8a,8a,ff  
+```  
+# There are the following sections:  
+[global] - Where are the global engine variables.  
+
+The variables of **[global]** section:  
+**hide**=[Boolean value] -Default value of  the hide variables of sprites (see bellow the **[spriteN]** section). Example:  
+
+```bash
+**hide**=false  
+```
+
+**showbox**=[Boolean value]  -Disable or enable draw lines in sprite delimiters and polision boxes.  
+**sptboxcolor**=[RR,GG,BB,MM]  
+**consoleborder**=[Integer value]  -Debug terminal (quake like) edge size.  
+**defenseboxcolor**=00,ff,00,ff    
+**attackboxcolor**=ff,00,00,ff  
+**textboxcolor**=ff,ff,00,ff  
+**name**=Window name  
+**icon**=./img/ship_icon.png -Icon of the window  
+**w**=[Integer value] -Width dimension of screen.  
+**h**=[Integer value] -Height dimension of screen.  
+**clear**=[Integer value] - if the variable **clear** is greater than zero, the screen will be filled with the spriteN animation. if the variable **clear** is equal to zero, the screen is filled with the color stored in the variable **color**.  
+**color**=49,49,49,ff  -Color that can be used to fill the screen.  
+**fonts**=[Integer value] - Maximum number of fonts loaded by the engine.  
+**sprites**=[Integer value] -Maximum number of sprites loaded by the engine.  
+**terminal**=[Boolean value] -Enable or disable the terminal.  
+**termlinesview**=[Integer value] -Maximum number of rows displayed by the terminal.  
+**terminalcolor**=1C,1A,D9,ff  
+**termsolid**=false  
+**terminalfont**=ttf/MSX-Screen0.ttf  
+**terminalfontsize**=16  
+**terminalfontcolor**=ff,ff,ff,ff  
+
+# TODO LIST
 
 Sistem:
 * [X] Command line parameters.  
