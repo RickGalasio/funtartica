@@ -1,0 +1,6 @@
+*.o
+tests/
+Makefile
+config.mk
+ge
+log/debug.log

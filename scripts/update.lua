@@ -124,25 +124,30 @@ end
 
 sprt_boy_x=sprt_boy_x+boy
 
-seti("sprt_boy_x",sprt_boy_x)
+--print("sprt_boy_x:")
+--print(sprt_boy_x)
+--print("sprt_boy_y:")
+--print(sprt_boy_y)
+
+seti("sprt_boy_x",math.floor(sprt_boy_x))
 seti("sprt_boy_flip",sprt_boy_flip)
 
-seti("sprt_sheep_x",sprt_sheep_x)
-seti("sprt_sheep_y",sprt_sheep_y)
+seti("sprt_sheep_x",math.floor(sprt_sheep_x))
+seti("sprt_sheep_y",math.floor(sprt_sheep_y))
 seti("sprt_sheep_flip",sprt_sheep_flip)
 
-seti("sprt_mn1_x",sprt_mn1_y)
-seti("sprt_mn1_y",sprt_mn1_x)
+seti("sprt_mn1_x",math.floor(sprt_mn1_y))
+seti("sprt_mn1_y",math.floor(sprt_mn1_x))
 
-seti("sprt_mn2_x",sprt_mn2_y)
-seti("sprt_mn2_y",sprt_mn2_x)
+seti("sprt_mn2_x",math.floor(sprt_mn2_y))
+seti("sprt_mn2_y",math.floor(sprt_mn2_x))
 
-seti("sprt_mn3_x",sprt_mn3_y)
-seti("sprt_mn3_y",sprt_mn3_x)
+seti("sprt_mn3_x",math.floor(sprt_mn3_y))
+seti("sprt_mn3_y",math.floor(sprt_mn3_x))
 
-seti("sprt_mn4_x",sprt_mn4_y)
-seti("sprt_mn4_y",sprt_mn4_x)
+seti("sprt_mn4_x",math.floor(sprt_mn4_y))
+seti("sprt_mn4_y",math.floor(sprt_mn4_x))
 
-seti("sprt_mn5_x",sprt_mn4_y)
-seti("sprt_mn5_y",sprt_mn4_x)
+seti("sprt_mn5_x",math.floor(sprt_mn4_y))
+seti("sprt_mn5_y",math.floor(sprt_mn4_x))
 --print("FIM ./test/update.lua")

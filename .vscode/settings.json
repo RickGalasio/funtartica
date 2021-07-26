@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "gelua.h": "c",
+        "globals.h": "c",
+        "cmath": "cpp",
+        "*.tcc": "cpp",
+        "ge.h": "c",
+        "sdl.h": "c",
+        "sdl_main.h": "c"
+    }
+}
