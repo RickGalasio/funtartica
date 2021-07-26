@@ -40,6 +40,7 @@ char GEVARNAME_S[DMAXVAR_S][DMAXVARNAME_S];
 char GEVARNAME_I[DMAXVAR_S][DMAXVARNAME_S];
 int GEI[DMAXVAR_S];
 char GES[DMAXVAR_S][DMAXLENSTRING];
+char gensprite[128][128];
 
 #define DMAXATACKSPRT 1
 #define DMAXDEFENSESPRT 3
@@ -146,6 +147,7 @@ sprite GE_sprite[DMAXSPRT];
 
 sprite bullets[DBULLETS];
 int sprites;
+bool ldebug;
 bool hide;
 bool showbox;
 int width;
@@ -190,6 +192,8 @@ int initGE(void);
 int setGEvarI(char *VarNameString, int varValorI);
 int getGEvarI(char *VarNameString);
 int Quit_GE(void);
+
+// void draw_rectangle(SDL_Surface* surface, int x, int y, int width, int height);
 
 #endif
 

@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
 	//##
 	// MSG("ANTES DO INI");
 	// exit(1);
-
+    ldebug = ini_get_bool(configfile, "global", "debug", false);
 	hide = ini_get_bool(configfile, "global", "hide", false);
 	showbox = ini_get_bool(configfile, "global", "showbox", false);
 	consoleborder = ini_get_int(configfile, "global", "consoleborder",20);
@@ -556,6 +556,12 @@ inputmode=play;
 clearconsoletext();
 //== LOOP ======================================================================================vvvv
 DBG("Main Loop...");
+
+// if (ldebug) {
+// 	DBG("################################ Cake rage quit...");
+// 	goto  Quit_GE;
+// }
+
 while (!quit)
 {
 	// TVARD(gepause);
