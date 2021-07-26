@@ -188,7 +188,7 @@ IA/Events/Heuristics
 >>    -pattern, background, title and menu images.  
 >>    -mosaic, a scenario background assembled by tiles.  
 >>    -tile, a scenario building unit.  
->>    -bar,Uma barra de status que é impressa cortada dependendo do valor 0%-100%).  
+>>    -bar, A status bar that is partially printed depending on the value 0%-100%).  
 >>    -gauge, Indexed images that are displayed depending on the percentage of a variable (0%-100%).  
     
 
