@@ -1,7 +1,7 @@
-### funtartica
+# funtartica
 2D Game Engine with LUA scripts.
 
-# Compile
+### Compile
 
 The fastest compile:  
 
@@ -27,18 +27,18 @@ Parameters:
  --no-mem  - Disable sanitizer memory leak debug.  
 ```
 
-# Run  
+### Run  
 ```bash
 ./ge
 ```
 
-### The config file (usually ge.ini)
+## The config file (usually ge.ini)
 In the configuration file is where the game variables and settings will be assigned. A file called ge.ini will be read. This file should be in the same folder as the funtartica game engine executable. This file is composed of sections, variables, and inline content.
 
 ## Sections  
 Sections bounded by brackets: **[ section ]**.  
 
-## Variables  
+### Variables  
 A variable is a named unit of data that is assigned a value. Values can be integers, strings, color values or Boolean logic values. A variable name consists of one or more words written in lowercase, without spaces. The name of a variable can be include numeric digits, but variable names cannot be started by a numeric digit.  
 
 ### Boolean logic values can be **Negative** or **Positive**  
@@ -48,7 +48,7 @@ Negative values:
 Positive values:  
 **1**, **yes**, **on**, **enable**, **set**, **t**, **true** or **positive**.  
 
-# Color values:  
+### Color values:  
 **RR**,**GG**,**BB**,**MM**  - Where:  
 **RR** is the hexadecimal value of Red component of color.  
 **GG** is the hexadecimal value of Green component of color.  
@@ -306,7 +306,7 @@ update=./script/update.lua
 ``` 
 To place inline scripts, you must use the inline syntax; **start{** ... **}** and **update{** ... **}**. example:
 
-```bash
+```bash 
 [scripts]
 start{
 buginc=1
@@ -325,6 +325,101 @@ sheepincy=math.floor(math.random() * 5) + 1
 }
 
 ``` 
+
+# The [sptriteN] sections. Where N is a number between 1 and the variable called **sprites** of the [global] section. 
+Example: 
+
+```bash 
+[global]
+...
+sprites=2
+...
+[sprite1]
+name=ship
+hide=false
+life=3
+tick=1
+flip=no
+x=10
+y=600
+w=100
+h=100
+animations=1
+defaultanimation=1
+   anima1type=loop
+   anima1speed=20
+   anima1frames=2
+     anima1frame1=./img/ship.png
+     anima1frame2=./img/ship2.png
+[sprite2]
+name=enemy
+hide=false
+life=3
+tick=1
+flip=no
+x=200
+y=200
+w=100
+h=100
+animations=1
+defaultanimation=1
+   anima1type=loop
+   anima1speed=15
+   anima1frames=2
+     anima1frame1=./img/enemy_walk1.png
+     anima1frame2=./img/enemy_walk2.png
+``` 
+# Variables of [spriteN] section: 
+ 
+**name**=[String of text] -Name of the sprite, preferably a short word. 
+**hide**=[Boolean value] -Hide the sprite. 
+**life**=[integer] -Numeric variable associated with sprite that can be used by scripts. Does not have to represent the life points of the sprite. 
+**tick**=[integer] -Time adjust, for animations. 
+**flip**=[Boolean value] -Makes sprite images mirrored. 
+**x**=[integer] -X sprite coordinate within the game window. 
+**y**=[integer] -Y sprite coordinate within the game window. 
+**w**=[integer] -Width in pixels of the sprite. 
+**h**=[integer] -Height in pixels of the sprite. 
+**animations**=[integer] -Number of sprite animations. 
+**defaultanimation**=[Integer] -Standard animation (idle) of the sprite. 
+**anima_N_type**=[none|loop|forward] -Type of animation. 
+**anima_N_frames**=[Integer] -Number of frames of animation N. Where N is the number of the animation. 
+**anima_N_frame_N'_**=[path of png image] -Path to the N' frame image of the animation N. Where N is the number of the animation. 
+
+Example with two different animations in the same sprite:  
+```bash 
+[global]
+...
+sprites=1
+...
+[sprite2]
+name=ship
+hide=false
+life=3
+tick=1
+flip=none
+x=10
+y=600
+w=100
+h=100
+animations=2
+defaultanimation=1
+#Animation 1
+   anima1type=loop
+   anima1speed=20
+   anima1frames=2
+     anima1frame1=./img/ship.png
+     anima1frame2=./img/ship2.png
+#Animation 2
+   anima2type=forward
+   anima2speed=150
+   anima2frames=4
+      anima2frame1=./img/kboom3.png
+      anima2frame2=./img/kboom4.png
+      anima2frame3=./img/kboom5.png
+      anima2frame4=./img/kboom6.png
+``` 
+
 ### TODO LIST
 
 Sistem:
