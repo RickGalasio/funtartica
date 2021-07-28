@@ -57,7 +57,7 @@ Positive values:
 
 Example:  
 ```bash  
-**terminalcolor=8a,8a,8a,ff**
+terminalcolor=8a,8a,8a,ff
 ```  
 # There are the following sections:  
 # The [global] section. Where are the global engine variables.  
@@ -68,7 +68,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**hide=false**
+hide=false
 ...
 ```
 
@@ -77,7 +77,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**showbox=true**
+showbox=true
 ```
 
 **sptboxcolor**=[RR,GG,BB,MM] -Sets the RGB color and mask for draw the debug delimiting lines of sprites. Example: 
@@ -85,7 +85,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**sptboxcolor=true**
+sptboxcolor=true
 ```
 
 **consoleborder**=[Integer value] -Debug terminal (quake like) edge size. Example: 
@@ -93,7 +93,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**consoleborder=true**
+consoleborder=true
 ```
 
 **defenseboxcolor**=[RR,GG,BB,MM] -Sets the RGB color and mask for draw the debug delimiting lines of defence area of sprites. Example: 
@@ -101,7 +101,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**defenseboxcolor=00,ff,00,ff**
+defenseboxcolor=00,ff,00,ff
 ```
 
 **attackboxcolor**=[RR,GG,BB,MM] -Sets the RGB color and mask for draw the debug delimiting lines of atack area of sprites. Example: 
@@ -109,7 +109,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**attackboxcolor=ff,00,00,ff**
+attackboxcolor=ff,00,00,ff
 ```
 
 **textboxcolor**=[RR,GG,BB,MM] -Sets the default RGB color and the default mask for print a text using an TrueType font. Example: 
@@ -117,7 +117,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**textboxcolor=ff,ff,00,ff**
+textboxcolor=ff,ff,00,ff
 ``` 
 
 **name**=[Window name] - Sets the name of the Game window. Example: 
@@ -125,7 +125,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**name=My RPG incredibly similar to Zelda**
+name=My RPG incredibly similar to Zelda
 ``` 
 
 **icon**=[path to 16x16 png image file] -Icon of the game window. Example: 
@@ -133,7 +133,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**icon=./imag/ship_icon.png**
+icon=./imag/ship_icon.png
 ``` 
 
 **w**=[window width dimension] -Screen/window width dimension. Example: 
@@ -141,7 +141,7 @@ The variables of **[global]** section:
 ```bash
 [global]
 ...
-**w=1024**
+w=1024
 h=768
 ...
 ``` 
@@ -152,7 +152,7 @@ h=768
 [global]
 ...
 w=1024
-**h=768**
+h=768
 ...
 ``` 
 
@@ -161,10 +161,10 @@ w=1024
 ```bash
 [global]
 ...
-**clear=1**
+clear=1
 ...
 [sprite1]
-\# "King of Fighters" stylish animated scenery.
+# "King of Fighters" stylish animated scenery.
 name=landscape1
 w=1024
 h=768
@@ -189,7 +189,7 @@ defaultanimation=1
 [global]
 ...
 clear=0
-**color=49,49,49,ff**
+color=49,49,49,ff
 ...
 ``` 
 
@@ -198,7 +198,7 @@ clear=0
 ```bash
 [global]
 ...
-**fonts=13**
+fonts=13
 ...
 ``` 
 
@@ -206,7 +206,7 @@ clear=0
 ```bash
 [global]
 ...
-**sprites=125**
+sprites=125
 ...
 ``` 
 
@@ -214,8 +214,8 @@ clear=0
 ```bash
 [global]
 ...
-\# Terminal (MSX style) 
-**terminal=true**
+# Terminal (MSX style) 
+terminal=true
 termlinesview=12
 terminalcolor=1C,1A,D9,ff
 termsolid=false
@@ -229,9 +229,9 @@ terminalfontcolor=ff,ff,ff,ff
 ```bash
 [global]
 ...
-\# Terminal (MSX style) 
+# Terminal (MSX style) 
 terminal=true
-**termlinesview=12**
+termlinesview=12
 terminalcolor=1C,1A,D9,ff
 termsolid=false
 terminalfont=./ttf/MSX-Screen0.ttf
@@ -244,10 +244,10 @@ terminalfontcolor=ff,ff,ff,ff
 ```bash
 [global]
 ...
-\# Terminal (IBM-PC-CGA style)
+# Terminal (IBM-PC-CGA style)
 terminal=true
 termlinesview=25
-**terminalcolor=00,00,00,ff**
+terminalcolor=00,00,00,ff
 termsolid=false
 terminalfont=ttf/PxPlus_IBM_CGA-2y.ttf
 terminalfontsize=16
@@ -259,11 +259,11 @@ terminalfontcolor=00,ff,00,ff
 ```bash
 [global]
 ...
-\# Terminal (ZX-Spectrum style)
+# Terminal (ZX-Spectrum style)
 terminal=true
 termlinesview=22
 terminalcolor=8a,8a,8a,ff
-**termsolid=true**
+termsolid=true
 terminalfont=ttf/MSX-Screen1.ttf
 terminalfontsize=18
 terminalfontcolor=00,00,00,00
@@ -274,7 +274,7 @@ terminalfontcolor=00,00,00,00
 ```bash
 [global]
 ...
-**terminalfont=./ttf/MSX-Screen0.ttf**
+terminalfont=./ttf/MSX-Screen0.ttf
 ...
 ``` 
 
@@ -282,7 +282,7 @@ terminalfontcolor=00,00,00,00
 ```bash
 [global]
 ...
-**terminalfontsize=16**
+terminalfontsize=16
 ...
 ``` 
 
@@ -290,7 +290,7 @@ terminalfontcolor=00,00,00,00
 ```bash
 [global]
 ...
-**terminalfontcolor=ff,ff,ff,ff**
+terminalfontcolor=ff,ff,ff,ff
 ...
 ``` 
  
@@ -301,14 +301,14 @@ Scripts can be written in separate files or created inline.
 To call scripts created in files, simply place in the **[scrpts]** section the **start** and **updade** variables pointing to where these scripts are. example: 
 ```bash
 [scripts]
-***start=./script/start.lua***
-***update=./script/update.lua***
+start=./script/start.lua
+update=./script/update.lua
 ``` 
 To place inline scripts, you must use the inline syntax; **start{** ... **}** and **update{** ... **}**. example:
 
 ```bash
 [scripts]
-**start{**
+start{
 buginc=1
 boy=10
 math.randomseed(os.time())
@@ -317,12 +317,12 @@ sheepincy=math.floor(math.random() * 5) + 1
 print("This is start{...} into ge.ini")
 seti("test", 54321 )
 print("END")
-**}**
+}
 
-**update{**
+update{
 sheepincx=math.floor(math.random() * 5) + 1 
 sheepincy=math.floor(math.random() * 5) + 1 
-**}**
+}
 
 ``` 
 ### TODO LIST
