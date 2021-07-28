@@ -371,20 +371,34 @@ defaultanimation=1
 ``` 
 # Variables of [spriteN] section: 
  
-**name**=[String of text] -Name of the sprite, preferably a short word. 
-**hide**=[Boolean value] -Hide the sprite. 
-**life**=[integer] -Numeric variable associated with sprite that can be used by scripts. Does not have to represent the life points of the sprite. 
-**tick**=[integer] -Time adjust, for animations. 
-**flip**=[Boolean value] -Makes sprite images mirrored. 
-**x**=[integer] -X sprite coordinate within the game window. 
-**y**=[integer] -Y sprite coordinate within the game window. 
-**w**=[integer] -Width in pixels of the sprite. 
-**h**=[integer] -Height in pixels of the sprite. 
-**animations**=[integer] -Number of sprite animations. 
-**defaultanimation**=[Integer] -Standard animation (idle) of the sprite. 
-**anima_N_type**=[none|loop|forward] -Type of animation. 
-**anima_N_frames**=[Integer] -Number of frames of animation N. Where N is the number of the animation. 
-**anima_N_frame_N'_**=[path of png image] -Path to the N' frame image of the animation N. Where N is the number of the animation. 
+**name**=[String of text] -Name of the sprite, preferably a short word.  
+
+**hide**=[Boolean value] -Hide the sprite.  
+
+**life**=[integer] -Numeric variable associated with sprite that can be used by scripts. Does not have to represent the life points of the sprite.  
+
+**tick**=[integer] -Time adjust, for animations.  
+
+**flip**=[Boolean value] -Makes sprite images mirrored.  
+
+**x**=[integer] -X sprite coordinate within the game window.  
+
+**y**=[integer] -Y sprite coordinate within the game window.  
+
+**w**=[integer] -Width in pixels of the sprite.  
+
+**h**=[integer] -Height in pixels of the sprite.  
+
+**animations**=[integer] -Number of sprite animations.  
+
+**defaultanimation**=[Integer] -Standard animation (idle) of the sprite.  
+
+**anima_N_type**=[none|loop|forward] -Type of animation.  
+
+**anima_N_frames**=[Integer] -Number of frames of animation N. Where N is the number of the animation.  
+
+**anima_N_frame_N'_**=[path of png image] -Path to the N' frame image of the animation N. Where N is the number of the animation.  
+
 
 Example with two different animations in the same sprite:  
 ```bash 
