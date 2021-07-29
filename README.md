@@ -326,7 +326,7 @@ sheepincy=math.floor(math.random() * 5) + 1
 
 ``` 
 
-# The [sptriteN] sections. Where N is a number between 1 and the variable called **sprites** of the [global] section. 
+# The **[sptriteN]** sections. Where N is a number between 1 and the variable called **sprites** of the **[global]** section. 
 Example: 
 
 ```bash 
@@ -369,38 +369,90 @@ defaultanimation=1
      anima1frame1=./img/enemy_walk1.png
      anima1frame2=./img/enemy_walk2.png
 ``` 
-# Variables of [spriteN] section: 
+# Variables of an **[spriteN]** section: 
  
 **name**=[String of text] -Name of the sprite, preferably a short word.  
-
+```bash 
+[sprite7]
+name=hero
+``` 
 **hide**=[Boolean value] -Hide the sprite.  
-
+```bash 
+[sprite7]
+...
+hide=0
+...
+``` 
 **life**=[integer] -Numeric variable associated with sprite that can be used by scripts. Does not have to represent the life points of the sprite.  
-
+```bash 
+[sprite7]
+...
+life=5
+...
+``` 
 **tick**=[integer] -Time adjust, for animations.  
+```bash 
+[sprite8]
+...
+tick=120
+...
+``` 
+**flip**=[Boolean value] Horizontally inverts the image (mirror). 
+```bash 
+[sprite10]
+...
+flip=true
+...
+``` 
 
-**flip**=[Boolean value] -Makes sprite images mirrored.  
-
-**x**=[integer] -X sprite coordinate within the game window.  
-
-**y**=[integer] -Y sprite coordinate within the game window.  
-
+**x**=[integer] -Coordinate X of sprite within the game window.  
+```bash 
+[sprite11]
+...
+x=200
+y=150
+...
+``` 
+**y**=[integer] -Coordinate Y of sprite within the game window.  
+```bash 
+[sprite11]
+...
+x=200
+y=150
+...
+``` 
 **w**=[integer] -Width in pixels of the sprite.  
-
+```bash 
+[sprite11]
+...
+w=132
+h=132
+...
+``` 
 **h**=[integer] -Height in pixels of the sprite.  
-
+```bash 
+[sprite11]
+...
+w=132
+h=132
+...
+``` 
 **animations**=[integer] -Number of sprite animations.  
-
-**defaultanimation**=[Integer] -Standard animation (idle) of the sprite.  
-
-**anima_N_type**=[none|loop|forward] -Type of animation.  
-
-**anima_N_frames**=[Integer] -Number of frames of animation N. Where N is the number of the animation.  
-
-**anima_N_frame_N'_**=[path of png image] -Path to the N' frame image of the animation N. Where N is the number of the animation.  
-
-
-Example with two different animations in the same sprite:  
+```bash 
+[sprite13]
+...
+animations=1 # Only one animation
+defaultanimation=1 # The default animation is the first and unique.
+   anima1type=loop 
+   anima1speed=15 
+   anima1frames=2 # 2 frames for the animation.
+     anima1frame1=./img/enemy_walk1.png # frame 1
+     anima1frame2=./img/enemy_walk2.png # frame 2
+``` 
+**defaultanimation**=[Integer] -Standard animation (idle) of the sprite. See below for example.  
+**anima_N_type**=[none|loop|forward] -Type of animation. See below for example.  
+**anima_N_frames**=[Integer] -Number of frames of animation N. Where N is the number of the animation. See below for example.  
+**anima_N_frame_N'_**=[path of png image] -Path to the N' frame image of the animation N. Where N is the number of the animation. Example with two different animations in the same sprite:  
 ```bash 
 [global]
 ...
@@ -410,32 +462,119 @@ sprites=1
 name=ship
 hide=false
 life=3
-tick=1
-flip=none
 x=10
 y=600
 w=100
 h=100
-animations=2
-defaultanimation=1
+animations=2 # 2 animations
+defaultanimation=1 # Default animation is the first.
 #Animation 1
-   anima1type=loop
+   anima1type=loop # The animation is looped.
    anima1speed=20
    anima1frames=2
-     anima1frame1=./img/ship.png
-     anima1frame2=./img/ship2.png
+     anima1frame1=./img/ship.png # Frame 1 of animation 1
+     anima1frame2=./img/ship2.png # Frame 2 of animation 1
 #Animation 2
-   anima2type=forward
-   anima2speed=150
+   anima2type=forward # The animation runs to the end and stop at the last frame when finished.
+   anima2speed=10
    anima2frames=4
-      anima2frame1=./img/kboom3.png
-      anima2frame2=./img/kboom4.png
-      anima2frame3=./img/kboom5.png
-      anima2frame4=./img/kboom6.png
+      anima2frame1=./img/kboom3.png # Frame 1 of animation 2
+      anima2frame2=./img/kboom4.png # Frame 2 of animation 2
+      anima2frame3=./img/kboom5.png # Frame 3 of animation 2
+      anima2frame4=./img/kboom6.png # Final frame of animation 2
+``` 
+# The **[fontN]** sections. Where N is a number between 1 and the variable called **fonts** of the **[global]** section.  
+Example:  
+```bash 
+[font1]
+file=./ttf/LibreBaskerville-Bold.ttf
+hide=false
+size=20
+x=0
+y=0
+text=FPS:[ %fps ]
+color=ff,ff,ff,ff
+#font Styles
+bold=0
+italic=0
+underline=0
+strikethrough=0
+outline=0
+hinting=none #hinting=<normal|ligth|mono|none>
+```
+# Variables of an **[fontN]** section:  
+  
+**file**=[path of ttf font file]  
+**hide**=[Boolean value] -Hide the text.  
+**size**=[Integer] -Size of text.  
+**x**=[Integer] -Coordinate X of the text within the game window.  
+**y**=[Integer] -Coordinate Y of the text within the game window.  
+**text**=[String text] -This text will be displayed on the screen at the x,y coordinates. If there are variables contained in it, they will be queried and converted to text 1 time each frame.  
+The format for variables in this text is:  
+```bash 
+%variable  
+``` 
+Where **variable** is the name of the variable. Variables must be preceded by the symbol '%'. 
+
+**color**=[RR,GG,BB,MM] -Sets the RGB color and mask for the text. 
+**bold**=[Boolean value] -Causes the text to be **bold**mode.  
+**italic**=[Boolean value] -Causes the text to be **italic** mode.  
+**underline**=[Boolean value] -Causes the text to be **underline** mode.  
+**strikethrough**=[Boolean value] -Causes the text to be **strikethrough** mode.  
+**outline**=[Boolean value] -Causes the text to be **outline** mode.  
+**hinting**=[normal|ligth|mono|none] -Selects one of the source variants: **normal** or **ligth** or **mono**. If **none** is selected, no variant is used. Example:  
+```bash 
+[font1]
+file=./ttf/Atial.ttf
+hinting=ligth
+...
+```
+
+# System and user variables
+**fps**, Integer - Returns how many Frames per second the engine is cornering. It is calculated and updated every second. 
+
+**sprt_*name*_hide** -Refers to the variable hide of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_x** -Refers to the variable x of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_y** -Refers to the variable y of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_w** -Refers to the variable w of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_h** -Refers to the variable h of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_life** -Refers to the variable life of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_showbox** -Refers to the variable showbox of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_attack_x** -Refers to the variable attack_x of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_attack_y** -Refers to the variable attack_y of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_attack_w** -Refers to the variable attack_w of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_attack_h** -Refers to the variable attack_h of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_defense_x** -Refers to the variable defense_x of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_defense_y** -Refers to the variable defense_y of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_defense_w** -Refers to the variable defense_w of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_defense_h** -Refers to the variable defense_h of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_flip** -Refers to the variable flip of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+**sprt_*name*_tick** -Refers to the variable tick of the sprite **name**. Where **name** is the contents of the sprite variable **name**. 
+
+You can create variables within LUA scripts. The name of these variables cannot conflict with system variables. 
+
+To register an entire type variable in the engine within lua scripts, you must use the function:  
+```bash 
+seti (variable, integer value)
 ``` 
 
 ### TODO LIST
-
 Sistem:
 * [X] Command line parameters.  
 * [X] Set path (and name) of the config file (aka ge.ini).  
