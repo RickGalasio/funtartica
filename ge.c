@@ -723,7 +723,7 @@ while (!quit)
 				rect.y = GE_sprite[sprti].boxattack.y;
 				rect.w = GE_sprite[sprti].boxattack.w;
 				rect.h = GE_sprite[sprti].boxattack.h;
-				l(rendscr,
+				SDL_SetRenderDrawColor(rendscr,
 									   attackboxcolor.r,
 									   attackboxcolor.g,
 									   attackboxcolor.b, 255);
