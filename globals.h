@@ -40,7 +40,7 @@ char GEVARNAME_S[DMAXVAR_S][DMAXVARNAME_S];
 char GEVARNAME_I[DMAXVAR_S][DMAXVARNAME_S];
 int GEI[DMAXVAR_S];
 char GES[DMAXVAR_S][DMAXLENSTRING];
-char gensprite[128][128];
+// char gensprite[128][128];
 
 #define DMAXATACKSPRT 1
 #define DMAXDEFENSESPRT 3
@@ -58,7 +58,9 @@ enum _spritetype{
    mosaic,
    tile,
    bar,
-   gauge
+   gauge,
+   procedural,
+   composed
 }_spritetype;
 
 typedef struct animation{

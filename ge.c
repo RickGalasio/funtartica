@@ -277,7 +277,6 @@ int main(int argc, char *argv[]){
 	//===Load GE_sprites==========================================================================================v
 	// DBG("Load GE_sprites");
 	for (sprites = 0; sprites < ini_get_int(configfile, "global", "sprites", 1); sprites++){
-
 		LETSF(spriteN, "sprite%d", sprites + 1);
 
 		// Load Sprite variables in inifile
@@ -286,19 +285,19 @@ int main(int argc, char *argv[]){
 		GE_sprite[sprites].hide = ini_get_bool(configfile, spriteN, "hide", hide);
 		GE_sprite[sprites].showbox = ini_get_bool(configfile, spriteN, "showbox", showbox);
 
-		//## Load Lua scripts 
+		//## Load Lua scripts
 		GE_sprite[sprites].script = false;
-
-		MALETS(GE_sprite[sprites].filestart, ini_get_str(configfile, spriteN, "start", "") );
-		MALETS(GE_sprite[sprites].fileupdate, ini_get_str(configfile, spriteN, "update", "") );
-		MALETS(GE_sprite[sprites].fileend, ini_get_str(configfile, spriteN, "end", "") );
+		MALETS(GE_sprite[sprites].filestart, ini_get_str(configfile, spriteN, "start", ""));
+		MALETS(GE_sprite[sprites].fileupdate, ini_get_str(configfile, spriteN, "update", ""));
+		MALETS(GE_sprite[sprites].fileend, ini_get_str(configfile, spriteN, "end", ""));
 
 		char spritetype[10];
 		LETS(spritetype, ini_get_str(configfile, spriteN, "type", "character"));
 		// DBG("SELECT [%s] type: %s",spriteN,spritetype);
 		if (!strcasecmp(spritetype, "character")){
 			GE_sprite[sprites].spritetype = character;
-		} else if (!strcasecmp(spritetype, "prop")){
+		}
+		else if (!strcasecmp(spritetype, "prop")){
 			GE_sprite[sprites].spritetype = prop;
 		}else if (!strcasecmp(spritetype, "mosaic")){
 			GE_sprite[sprites].spritetype = mosaic;
@@ -308,6 +307,10 @@ int main(int argc, char *argv[]){
 			GE_sprite[sprites].spritetype = bar;
 		}else if (!strcasecmp(spritetype, "gauge")){
 			GE_sprite[sprites].spritetype = bar;
+		}else if (!strcasecmp(spritetype, "procedural") || !strcasecmp(spritetype, "proc")){
+			GE_sprite[sprites].spritetype = procedural;
+		}else if (!strcasecmp(spritetype, "composed")){
+			GE_sprite[sprites].spritetype = composed;
 		}
 
 		GE_sprite[sprites].flip = ini_get_bool(configfile, spriteN, "flip", "false");
@@ -328,102 +331,117 @@ int main(int argc, char *argv[]){
 		GE_sprite[sprites].boxdefense.h = ini_get_int(configfile, spriteN, "defense_h", 0);
 		GE_sprite[sprites].animationidx = ini_get_int(configfile, spriteN, "defaultanimation", 1) - 1;
 
-		//##AQUI
 		//Sprite is a mosaic (tiled sprite)
-	
-        if(GE_sprite[sprites].spritetype == mosaic){
-		
-			// TVARS(configfile);
-			// TVARS(spriteN);
-    		// TVARD(width);
-			// TVARD(height);
+		if (GE_sprite[sprites].spritetype == mosaic){
 
-        	//tcolor is an temporary color RGBA value for tilemap.
+			//tcolor is an temporary color RGBA value for tilemap.
 			// DBG("tcolor is an temporary color RGBA value for tilemap.");
-			SDL_Color mtcolor={0,0,0,0};
+			SDL_Color mtcolor = {0, 0, 0, 0};
 			LETS(ccolor, ini_get_str(configfile, spriteN, "color", "ff,00,00,ff"));
 			// DBG("ccolor=[%s]",ccolor);
 
-			if (sscanf(ccolor,
-			    "%x,%x,%x,%x",
-				&cr,
-				&cg,
-				&cb,
-				&ca) != 4)
-			{
+			if (sscanf(ccolor, "%x,%x,%x,%x", &cr, &cg, &cb, &ca) != 4){
 				ERR("Wrong color parameters at: %s", ccolor);
 				mtcolor.r = 0;
 				mtcolor.g = 0;
 				mtcolor.b = 0;
 				mtcolor.a = 255;
-	    	}else{
+			}else{
 				mtcolor.r = cr;
 				mtcolor.g = cg;
 				mtcolor.b = cb;
 				mtcolor.a = ca;
 			}
-	
-			GE_sprite[sprites].animation[0].textFrame[0]=getilemap(	
-				  											configfile,
-    														spriteN,
-															rendscr,
-															mtcolor,
-															width,
-															height
-			);
-		}
 
-		// Sprite is a character or prop
-		for (int animations = 0;
-		      (GE_sprite[sprites].spritetype == character
-		      || GE_sprite[sprites].spritetype == prop
-			  )
-			   && animations < ini_get_int(configfile, spriteN, "animations", 1);
-			   animations++
-			){
-			char paramx[20];
-			char sanitype[20];
-			LETSF(paramx, "anima%dtype", animations + 1)
-			LETS(sanitype, ini_get_str(configfile, spriteN, paramx, "none"));
-
-			if (!strcasecmp("none", sanitype)){
-				GE_sprite[sprites].animation[animations].anitype = none;
-			}else if (!strcasecmp("loop", sanitype)){
-				GE_sprite[sprites].animation[animations].anitype = loop;
-			}else if (!strcasecmp("forward", sanitype)){
-				GE_sprite[sprites].animation[animations].anitype = forward;
+			GE_sprite[sprites].animation[0].textFrame[0] = getilemap(configfile,
+				 spriteN, rendscr, mtcolor, width, height);
+		}else if (GE_sprite[sprites].spritetype == procedural){
+			DBG("GENSPRITE####");
+			int seed = ini_get_int(configfile, spriteN, "seed", 0);
+			bool border = ini_get_bool(configfile, spriteN, "border", true);
+						SDL_Color mtcolor = {0, 0, 0, 0};
+			
+			LETS(ccolor, ini_get_str(configfile, spriteN, "color", "ff,00,00,ff"));
+			DBG("ccolor=[%s]",ccolor);
+            /*
+			if (sscanf(ccolor, "%x,%x,%x,%x", &cr, &cg, &cb, &ca) != 4){
+				ERR("Wrong color parameters at: %s", ccolor);
+				mtcolor.r = 0;
+				mtcolor.g = 0;
+				mtcolor.b = 0;
+				mtcolor.a = 255;
 			}else{
-				ERR("invalid anima%dtype in sprite[%s]", animations + 1, spriteN);
-				GE_sprite[sprites].animation[animations].anitype = none;
+				mtcolor.r = cr;
+				mtcolor.g = cg;
+				mtcolor.b = cb;
+				mtcolor.a = ca;
 			}
+             			
+			// GE_sprite[sprites].pos.y = ini_get_int(configfile, spriteN, "y", 0);
+			// GE_sprite[sprites].pos.w = ini_get_int(configfile, spriteN, "w", 0);
+			// GE_sprite[sprites].pos.h = ini_get_int(configfile, spriteN, "h", 0);
 
-			GE_sprite[sprites].animation[animations].frameidx = 0;
-			LETSF(animationSTUFFS, "anima%dspeed", animations + 1);
-			GE_sprite[sprites].animation[0].speed = ini_get_int(configfile, spriteN, animationSTUFFS, 150);
+			GE_sprite[sprites].animation[0].textFrame[0] = gensprite(configfile,
+				spriteN,
+				rendscr,
+				mtcolor,
+				width,
+				height
+			);
+*/
+		}else{ // if character or prop
+			// if Sprite is a character or prop
+			for (int animations = 0;
+				 (GE_sprite[sprites].spritetype == character 
+				 || GE_sprite[sprites].spritetype == prop)
+				 && animations < ini_get_int(configfile, spriteN, "animations", 1);
+				 animations++)
+			{
+				char paramx[20];
+				char sanitype[20];
+				LETSF(paramx, "anima%dtype", animations + 1)
+				LETS(sanitype, ini_get_str(configfile, spriteN, paramx, "none"));
 
-			LETSF(animationSTUFFS, "anima%dframes", animations + 1);
-			GE_sprite[sprites].animation[animations].maxframes = ini_get_int(configfile, spriteN, animationSTUFFS, 1);
-			for (int frame = 0; frame < GE_sprite[sprites].animation[animations].maxframes; frame++){
-				SDL_Surface *surfacetemp;
-				LETSF(animaNframeN, "anima%dframe%d", animations + 1, frame + 1);
-				LETS(filename, ini_get_str(configfile, spriteN, animaNframeN, "./img/not_found.png"));
-
-				// Carrega imagem de fundo padrão.
-				if ((surfacetemp = IMG_Load((const char *)filename)) == NULL){
-					ERR("Unable to open sprite-frame file: %s", filename);
-					return 0;
+				if (!strcasecmp("none", sanitype)){
+					GE_sprite[sprites].animation[animations].anitype = none;
+				}else if (!strcasecmp("loop", sanitype)){
+					GE_sprite[sprites].animation[animations].anitype = loop;
+				}else if (!strcasecmp("forward", sanitype)){
+					GE_sprite[sprites].animation[animations].anitype = forward;
 				}else{
-					// DBG("carrega imagem: %s",filename);
-					GE_sprite[sprites].animation[animations].textFrame[frame] = (SDL_Texture *) SDL_CreateTextureFromSurface(rendscr, surfacetemp);
-					SDL_FreeSurface(surfacetemp);
+					ERR("invalid anima%dtype in sprite[%s]", animations + 1, spriteN);
+					GE_sprite[sprites].animation[animations].anitype = none;
 				}
-			}
-		} // for animations 
+
+				GE_sprite[sprites].animation[animations].frameidx = 0;
+				LETSF(animationSTUFFS, "anima%dspeed", animations + 1);
+				GE_sprite[sprites].animation[0].speed = ini_get_int(configfile, spriteN, animationSTUFFS, 150);
+
+				LETSF(animationSTUFFS, "anima%dframes", animations + 1);
+				GE_sprite[sprites].animation[animations].maxframes = ini_get_int(configfile, spriteN, animationSTUFFS, 1);
+
+				for (int frame = 0; frame < GE_sprite[sprites].animation[animations].maxframes; frame++){
+					SDL_Surface *surfacetemp;
+					LETSF(animaNframeN, "anima%dframe%d", animations + 1, frame + 1);
+					LETS(filename, ini_get_str(configfile, spriteN, animaNframeN, "./img/not_found.png"));
+
+					// Carrega imagem de fundo padrão.
+					if ((surfacetemp = IMG_Load((const char *)filename)) == NULL){
+						ERR("Unable to open sprite-frame file: %s", filename);
+						return 0;
+					}else{
+						// DBG("carrega imagem: %s",filename);
+						GE_sprite[sprites].animation[animations].textFrame[frame] = (SDL_Texture *)SDL_CreateTextureFromSurface(rendscr, surfacetemp);
+						SDL_FreeSurface(surfacetemp);
+					}
+				}
+			} // for animations
+		} // if character or prop
 	} // for(sprites ...) load sprite-frames
 	//===Load GE_sprites==========================================================================================^
 
 	// DBG("Load GE_sprites END");
-    // DBG("Load bullets from GE_sprite[SPT_BULLET]");
+	// DBG("Load bullets from GE_sprite[SPT_BULLET]");
 	//==Load bullets from GE_sprite[SPT_BULLET]============================================================================v
 	LETS(filename, ini_get_str(configfile, "sprite4", "anima1frame1", "./img/not_found.png"));
 	for (int i = 0; i < DBULLETS; i++){
