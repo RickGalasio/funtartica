@@ -529,7 +529,6 @@ file=./ttf/Atial.ttf
 hinting=ligth
 ...
 ```
-
 # System and user variables
 **fps**, Integer - Returns how many Frames per second the engine is cornering. It is calculated and updated every second. 
 
@@ -671,4 +670,4 @@ IA/Events/Heuristics
 >>    -tile, a scenario building unit.  
 >>    -bar, A status bar that is partially printed depending on the value 0%-100%).  
 >>    -gauge, Indexed images that are displayed depending on the percentage of a variable (0%-100%).  
-    
+

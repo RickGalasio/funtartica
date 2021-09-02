@@ -56,7 +56,7 @@ char *ini_get_str(const char *sname_file,
 				bzero(term1, 255);
 				while (!feof(inifile) && ('=' != ch) && (isprint(ch))){
 
-					if (isalnum(ch) || ch == '_') term1[xx++] = ch;
+					if (isalnum(ch) || ch == '_' || ch == ':' ) term1[xx++] = ch;
 
 					if (ch == 32){
 						while (!feof(inifile) && ch == 32) 
@@ -117,7 +117,7 @@ void *ini_get_malloc_str(
 	FILE *inifile;
 	char ch;
 	char *spatt;
-
+    ERR("WARNING ini_get_malloc_str() CAUSES UNESPECTED ERRORS !!! (REIMPLEMENT)");
 	if (!(spatt = malloc(sizeof(char) * (strlen(svalue) + 1))))
 	{
 		ERR("Out of memory reading ini file:%s [%s] - %s ",
@@ -126,6 +126,8 @@ void *ini_get_malloc_str(
 			svalue);
 		exit(1);
 	}
+  
+	DBG("Reservando %d bytes", sizeof(char) * (strlen(svalue) + 1));
 
 	bzero(spatt, sizeof(char) * (strlen(svalue) + 1));
 	char *buffer;

@@ -1,126 +1,230 @@
 #include "gensprite.h"
 #include "inifiles.h"
 #include "debug.h"
-SDL_Texture *gesprite(
-	char *configfile,
-	char *spriteN,
-	SDL_Renderer *rendscr,
-	SDL_Color tcolor,
-	int width, int height)
-{
-	DBG("Gen Sprites");
-	SDL_Texture *tilemap;
-	char mosaicname[20];
-	char linelegend[255];
-	char legendN[50];
 
-	SDL_Rect myrect = {0, 0, 32, 32};
-	myrect.w = ini_get_int(configfile, spriteN, "tilew", 32);
-	myrect.h = ini_get_int(configfile, spriteN, "tileh", 32);
+SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
+	DBG("GENERATING:%s", spriteN);
+	// Dimensions of internal pixels (the final sprite is staggered)
+	spritew = ini_get_int(configfile, spriteN, "pixel:w", 16);
+	spriteh = ini_get_int(configfile, spriteN, "pixel:h", 16);
+	npixels = ini_get_int(configfile, spriteN, "pixel:n", 16 * 16 * 0.20);
+	pixelcolors = ini_get_int(configfile, spriteN, "pixel:colors", 1);
 
-	// int mosaicw = ini_get_int(configfile, spriteN, "mosaicw", 1);
-	// int mosaich = ini_get_int(configfile, spriteN, "mosaich", 1);
-	LETS(mosaicname, ini_get_str(configfile, spriteN, "mosaic", ""));
-	// MSG("Mosaic:%s", mosaicname);
-	// DBG("Load Tiles.");
+	// INI feed random generator with the seed----
+	//
+	TVARS(configfile);
+	TVARS(spriteN);
+	char seed[50];
+	LETS(seed, ini_get_str(configfile, spriteN, "pixel:seed", "rnd"));
+	TVARS(seed);
 
-	_getile *getile;
+	if (!strcasecmp(seed, "rnd") || !strcasecmp(seed, "random")){
 
-	if (!(getile = malloc(sizeof(_getile) * ini_get_int(configfile, spriteN, "legends", 0)))){
-		ERR("getile malloc :%d", ini_get_int(configfile, spriteN, "legends", 0));
+		if (lastseed == 0){
+			lastseed = time(0);
+			DBG("INI SEED: %d", lastseed);
+			msrand(lastseed);
+		}else{
+			DBG("LST SEED: %d", lastseed);
+			msrand(lastseed);
+		}
+	}else{
+		DBG("FIX SEED: %s", seed);
+		msrand(atoi(seed));
+	}
+
+	// END feed random generator with the seed----
+
+	mirror = ini_get_bool(configfile, spriteN, "pixel:mirror", false);
+	lake = ini_get_bool(configfile, spriteN, "pixel:lake", false);
+
+	int pixelx, pixely;
+	int x, y;
+	SDL_Texture *genspritetexture;
+	SDL_Surface *tmpsurface;
+
+	colors = ini_get_int(configfile, spriteN, "pixel:colors", 1);
+
+	SDL_Color *pcolor;
+	pcolor = (SDL_Color *)malloc(sizeof(SDL_Color) * colors);
+
+	TVARD(colors);
+	for (int i = 1; i <= colors; i++){
+		// DBG("---------------");
+		LETSF(xcolor, "pixel:color%d", i);
+		LETS(cxcolor, ini_get_str(configfile, spriteN, xcolor, "ff,ff,ff,ff"));
+
+		if (sscanf(cxcolor, "%x,%x,%x,%x", &pcolor[i - 1].r, &pcolor[i - 1].g, &pcolor[i - 1].b, &pcolor[i - 1].a) != 4){
+			ERR("%s in sprite %s", xcolor, spriteN);
+			pcolor[i].r = pcolor[i].g = pcolor[i].b = pcolor[i].a = 0;
+		}
+	}
+
+	//--------------------------------------------------------------------
+	FILE *myinline;
+	char linha[1024];
+
+	TVARS(configfile);
+	TVARS(spriteN);
+
+	char mapspritename[512];
+	LETS(mapspritename, ini_get_str(configfile, spriteN, "pixel:map", "ship"));
+	TVARS(mapspritename);
+	myinline = ini_fopen_inline(configfile, "maps", mapspritename);
+
+	y = 0;
+	x = 0;
+	if ((pixmask = (unsigned char *)malloc(sizeof(unsigned char) * spriteh * spritew)) == NULL){
+		ERR("Out of Memory.");
+		exit(1);
+	}
+	bzero(pixmask, sizeof(unsigned char) * spriteh * spritew);
+	y = 0;
+	for (;;){
+		LETS(linha, ini_get_next_inline(myinline, false));
+		if (!strlen(linha)){
+			break;
+		}
+		DBG("map:%0.2d[%s]", y, linha);
+		for (x = 0; x < spritew; x++){
+			if (linha[x] != '.'){
+				PIXMASK(x, y) = 1;
+			}
+		}
+		y++;
+	}
+	fclose(myinline);
+	// free(linha);
+	//--------------------------------------------------------------------
+	//  DBG("END TEST MAP PIXEL");
+	// exit(1);
+
+	if ((pixel = (unsigned char *)malloc(sizeof(unsigned char) * spriteh * spritew)) == NULL){
+		ERR("Out of Memory.");
+		exit(1);
+	}
+	bzero(pixel, sizeof(char) * spriteh * spritew);
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	tmpsurface = SDL_CreateRGBSurface(0, width, height, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+#else
+	tmpsurface = SDL_CreateRGBSurface(0, width, height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+#endif
+
+	int retry = 0;
+
+	// TVARD(spritew);
+	// TVARD(spriteh);
+
+	// INI RND -----------------------------------
+	for (int i = 0; i < npixels; i++){
+		int actualcolor;
+	// RE_RND:
+		retry++;
+
+		if (retry > spritew * spriteh) break;
+
+		lastseed = mrand();
+		pixelx = 1 + (lastseed) % (spritew - 2);
+		lastseed = mrand();
+		pixely = 1 + (lastseed) % (spriteh - 2);
+		lastseed = mrand();
+		actualcolor = 1 + (lastseed) % (pixelcolors);
+		// TVARD(actualcolor);
+		if (PIXMASK(pixelx, pixely) != 0){
+			PIXEL(pixelx, pixely) = actualcolor;
+		}
+
+		if (mirror && MPIXMASK(pixelx, pixely) != 0){
+			MPIXEL(pixelx, pixely) = actualcolor;
+		}
+	}
+// END_RND:
+	// END RND -----------------------------------
+
+	// INI Draw borders ---------------------------------------
+	for (int x = 0; x < spritew; x++){
+		for (int y = 0; y < spriteh; y++){
+			if (PIXEL(x, y) != 0 && PIXEL(x, y) != CHAR_BORDER){
+				if (PIXEL(x - 1, y) == 0) PIXEL(x - 1, y) = CHAR_BORDER;
+				if (PIXEL(x + 1, y) == 0) PIXEL(x + 1, y) = CHAR_BORDER;
+				if (PIXEL(x, y - 1) == 0) PIXEL(x, y - 1) = CHAR_BORDER;
+				if (PIXEL(x, y + 1) == 0) PIXEL(x, y + 1) = CHAR_BORDER;
+			}
+		}
+	} // END Draw borders---------------------------------------
+
+	char *xline;
+	xline = (char *)malloc(sizeof(char) * spritew + 1);
+
+	if (xline == NULL){
+		ERR("Memory allocation fault.");
 		exit(1);
 	}
 
-	for (int i = 1; i <= ini_get_int(configfile, spriteN, "legends", 0); i++){
-		LETSF(legendN, "legend%d", i);
-		LETS(linelegend, ini_get_str(configfile, spriteN, legendN, " "));
-		TVARS(linelegend);
-		getile[i - 1].legend = linelegend[0];
+	for (int y1 = 0; y1 < spriteh; y1++){
+		bzero(xline, (sizeof(char) * spritew + 1));
+		for (int x1 = 0; x1 < spritew; x1++){
 
-		//## mosaic Carrega imagem de fundo padrão.
-		if ((getile[i - 1].tile = IMG_Load((const char *)linelegend + 2)) == NULL){
-			ERR("Unable to open Tile: %s", linelegend + 2);
-
-			// LETS(filename, "./img/not_found.png");
-			// if ((getile[i - 1].tile = IMG_Load((const char *)filename)) == NULL){
-			// 	ERR("Unable to open file ./img/not_found.png");
-			// 	exit(1);
-			// }
-			exit(1);
-		}
-	}
-
-	// DBG("Create bg image");
-	if ((tilemap = (SDL_Texture *)SDL_CreateTexture(
-			 rendscr, 
-			// SDL_PIXELFORMAT_RGBA8888,
-			  SDL_PIXELFORMAT_ARGB8888,
-			 SDL_TEXTUREACCESS_STREAMING,
-			 width,
-			 height)))
-	{
-	//------------------------------------------------------------------------------v
-    // Initialize texture pixels to a AGRB (no RGBA) value
-    unsigned char* bytes = NULL;
-    int pitch = 0;
-    SDL_LockTexture(tilemap, NULL, (void **)&bytes, &pitch);
-
-	// TVARD(tcolor.r);
-    // TVARD(tcolor.g);
-	// TVARD(tcolor.b);
-
-    unsigned char rgba[4] = { tcolor.b, tcolor.g, tcolor.r, tcolor.a };
-    for(register int y = 0; y < height; ++y) {
-        for (register int x = 0; x < width; ++x) {
-            memcpy(&bytes[(y * width + x )*sizeof(rgba)], rgba, sizeof(rgba));
-        }
-    }
-	SDL_UnlockTexture(tilemap);
-    //------------------------------------------------------------------------------^    
-		// DBG("Merge tile[0]");
-		char linha[1024];
-		FILE *myinline;
-		// char inlinename[15];
-		// DBG("##############################################################");
-		TVARS(configfile);
-		myinline = ini_fopen_inline(configfile, "sprite1", mosaicname);
-		bzero(linha, sizeof(linha));
-		while (true){
-			LETS(linha, ini_get_next_inline(myinline, false));
-			if (!strlen(linha))
+			switch (PIXEL(x1, y1)){
+			case CHAR_BORDER:
+				setpixel(tmpsurface, spritew, spriteh, x1, y1, pcolor[0]);
+				xline[x1] = '_';
 				break;
-			//MSG("INLINE:%s:%d",linha,i++);
-			for (int c = 0; c < strlen(linha); c++){
-				myrect.x = c * myrect.w;
-				int l = 0;
-				for (l = 0; l < ini_get_int(configfile, spriteN, "legends", 0); l++){
-					if (getile[l].legend == linha[c])
-						break;
+
+			default:
+				if (PIXEL(x1, y1) > 0){
+					setpixel(tmpsurface, spritew, spriteh, x1, y1, pcolor[PIXEL(x1, y1)]);
+					xline[x1] = '0' + PIXEL(x1, y1);
+				}else{
+					xline[x1] = ' ';
 				}
-                // SDL_SetTextureBlendMode(tilemap,150);
-				SDL_UpdateTexture(
-					tilemap,
-					&myrect,
-					getile[l].tile->pixels,
-					getile[l].tile->pitch);
+				break;
 			}
-			myrect.y += myrect.h;
-			// printf("\n");
 		}
-		fclose(myinline);
-		// DBG("##############################################################");
+		xline[spritew + 1] = 0;
+		DBG("%0.2d[%s]", y1, xline);
 	}
+	free(xline);
+
+	genspritetexture = SDL_CreateTextureFromSurface(rendscr, tmpsurface);
 	
-	for (int i = 1; i < ini_get_int(configfile, spriteN, "legends", 0); i++){
-		SDL_FreeSurface(getile[i - 1].tile);
-	}
+	DBG("############################");
+#ifdef STB_SPRINTF_H_INCLUDE
+    DBG("stb_sprintf in use");
+#endif
 
-	free(getile);
-
-	return tilemap;
+	free(pixel);
+	free(pixmask);
+	free(pcolor);
+	SDL_FreeSurface(tmpsurface);
+	return genspritetexture;
 }
 
+int setpixel(SDL_Surface *sptsurface, int spritew, int spriteh,int pixelx, int pixely,
+	SDL_Color pxcolor){
+	int ret=0;
+	SDL_Rect tmprect;
+ 
+	tmprect.w = width/spritew;
+	tmprect.h = height/spriteh;
+	tmprect.x = (width - (pixelx * tmprect.w) - tmprect.w);
+	tmprect.y = pixely*tmprect.h;
 
+	SDL_FillRect(sptsurface, &tmprect, SDL_MapRGB(sptsurface->format, pxcolor.r, pxcolor.g, pxcolor.b));
 
+	ret=1;
+	return ret;
+}
 
+void msrand(int zseed){
+   mseed=zseed;
+}
+// simple mersenne twister pseudo random generator
+unsigned int mrand(void){
+        mseed ^= mseed << 13;
+        mseed ^= mseed >> 7;
+        mseed ^= mseed << 17;
+ return mseed;
+}
 // - EOF

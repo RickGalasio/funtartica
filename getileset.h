@@ -41,7 +41,6 @@ typedef struct getileset{
 	enum _acesstile acess;
 	SDL_Surface *tile;
 	char *trapscript;
-	
 } _getile;
 
 SDL_Texture *getilemap(

@@ -1,6 +1,8 @@
 #ifndef _DEBUG_H_
 #define _DEBUG_H_
 
+//#include "tests/stb/stb_sprintf.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>

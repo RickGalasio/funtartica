@@ -21,7 +21,7 @@ SDL_Texture *getilemap(
 	// int mosaicw = ini_get_int(configfile, spriteN, "mosaicw", 1);
 	// int mosaich = ini_get_int(configfile, spriteN, "mosaich", 1);
 	LETS(mosaicname, ini_get_str(configfile, spriteN, "mosaic", ""));
-	// MSG("Mosaic:%s", mosaicname);
+	MSG("Mosaic:%s", mosaicname);
 	// DBG("Load Tiles.");
 
 	_getile *getile;

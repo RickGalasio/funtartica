@@ -1,60 +1,47 @@
 #ifndef _GENSPRITE_H_
 #define _GENSPRITE_H_
-
 #include "globals.h"
 #include "debug.h"
 #include "config.h"
 
-enum _tiletype {
-	wall,
-	hidden,
-	paving,
-	roof,
-	trap,
-	shallow,
-	deep
-}_tiletype;
+// SDL_Texture *gensprite(
+// 	char *configfile,
+// 	char *spriteN,
+// 	SDL_Renderer *rendscr
+// 	);
 
-/*
- SW N NE
-   \|/
- W--0--E
-   /|\
- NW S SE
-*/
-enum _acesstile {
-	everywere,      //a free way
-	no_way,         // blocked way
-	only_n,         // only North way
-	only_s,         // only South way
-	only_e,         // only East way
-	only_w,         // only West way
-	only_horizontal,
-	only_vertical,
-	only_in,
-	only_out
-}_acesstile;
+// int setpixel(SDL_Surface *sptsurface, int spritew, int spriteh,int pixelx, int pixely,
+// 	SDL_Color pxcolor);
 
-typedef struct getileset{
-	char legend;
-	enum _tiletype type;
-	enum _acesstile acess;
-	SDL_Surface *tile;
-	char *trapscript;
-	
-} _getile;
+static unsigned char *pixel, *pixmask;
+#define PIXEL( x , y ) (pixel+(x)*spritew+(y))[0]
+#define MPIXEL( x , y ) (pixel+(spritew-x-1)*spritew+(y))[0]
+#define PIXMASK( x , y ) (pixmask+(x)*spritew+(y))[0]
+#define MPIXMASK( x , y ) (pixmask+(spritew-x-1)*spritew+(y))[0]
 
-SDL_Texture *gensprite(
-	char *configfile,
-    char *spriteN,
-	SDL_Renderer *rendscr,
-	SDL_Color Tcolor,
-	int width,int height
-	);
+#define CHAR_BORDER 255
 
-#endif
+static int spritew;
+static int spriteh;
+static int npixels;
 
 
+static bool mirror;
+static bool lake;
+static unsigned int pixelcolors, actualcolor;
 
+static int colors; 
+static char cxcolor[12];
+static char xcolor[15];
 
+SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr);
+
+int setpixel(SDL_Surface *sptsurface, int spritew, int spriteh,int pixelx, int pixely,
+	SDL_Color pxcolor);
+
+static unsigned int lastseed=0;
+static unsigned int mseed=0;
+void msrand(int zseed);
+unsigned int mrand(void);
 // - EOF
+#endif

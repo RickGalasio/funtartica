@@ -8,6 +8,7 @@
 #include "config.h"
 #include "inputs.h"
 #include "getileset.h"
+#include "gensprite.h"
 
 //---------------------------------------------------------------v
 char *parservar(char *intext){
@@ -61,6 +62,9 @@ char *parservar(char *intext){
 int main(int argc, char *argv[]){
 	DBG_INIT("START G.ENGINE");
 	srand(time(0));
+	msrand(time(0));
+
+	DBG("srand");
 
 	//--parametrer of command line----------------------v
 	MALETS(configfile, "./ge.ini");
@@ -356,39 +360,14 @@ int main(int argc, char *argv[]){
 			GE_sprite[sprites].animation[0].textFrame[0] = getilemap(configfile,
 				 spriteN, rendscr, mtcolor, width, height);
 		}else if (GE_sprite[sprites].spritetype == procedural){
-			DBG("GENSPRITE####");
-			int seed = ini_get_int(configfile, spriteN, "seed", 0);
-			bool border = ini_get_bool(configfile, spriteN, "border", true);
-						SDL_Color mtcolor = {0, 0, 0, 0};
-			
-			LETS(ccolor, ini_get_str(configfile, spriteN, "color", "ff,00,00,ff"));
-			DBG("ccolor=[%s]",ccolor);
-            /*
-			if (sscanf(ccolor, "%x,%x,%x,%x", &cr, &cg, &cb, &ca) != 4){
-				ERR("Wrong color parameters at: %s", ccolor);
-				mtcolor.r = 0;
-				mtcolor.g = 0;
-				mtcolor.b = 0;
-				mtcolor.a = 255;
-			}else{
-				mtcolor.r = cr;
-				mtcolor.g = cg;
-				mtcolor.b = cb;
-				mtcolor.a = ca;
-			}
-             			
-			// GE_sprite[sprites].pos.y = ini_get_int(configfile, spriteN, "y", 0);
-			// GE_sprite[sprites].pos.w = ini_get_int(configfile, spriteN, "w", 0);
-			// GE_sprite[sprites].pos.h = ini_get_int(configfile, spriteN, "h", 0);
+
+     DBG("GENSPRITE [sprite%d]",sprites+1);
 
 			GE_sprite[sprites].animation[0].textFrame[0] = gensprite(configfile,
 				spriteN,
-				rendscr,
-				mtcolor,
-				width,
-				height
+				rendscr
 			);
-*/
+
 		}else{ // if character or prop
 			// if Sprite is a character or prop
 			for (int animations = 0;
