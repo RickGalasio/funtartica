@@ -1,6 +1,7 @@
 #include "gensprite.h"
 #include "inifiles.h"
 #include "debug.h"
+#include "rnd.h"
 
 SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
 	DBG("GENERATING:%s", spriteN);
@@ -113,13 +114,9 @@ SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
 
 	int retry = 0;
 
-	// TVARD(spritew);
-	// TVARD(spriteh);
-
 	// INI RND -----------------------------------
 	for (int i = 0; i < npixels; i++){
 		int actualcolor;
-	// RE_RND:
 		retry++;
 
 		if (retry > spritew * spriteh) break;
@@ -139,7 +136,6 @@ SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
 			MPIXEL(pixelx, pixely) = actualcolor;
 		}
 	}
-// END_RND:
 	// END RND -----------------------------------
 
 	// INI Draw borders ---------------------------------------
@@ -217,14 +213,4 @@ int setpixel(SDL_Surface *sptsurface, int spritew, int spriteh,int pixelx, int p
 	return ret;
 }
 
-void msrand(int zseed){
-   mseed=zseed;
-}
-// simple mersenne twister pseudo random generator
-unsigned int mrand(void){
-        mseed ^= mseed << 13;
-        mseed ^= mseed >> 7;
-        mseed ^= mseed << 17;
- return mseed;
-}
 // - EOF

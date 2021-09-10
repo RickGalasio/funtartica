@@ -1,25 +1,9 @@
 #ifndef _GELUA_H_
 #define _GELUA_H_
 
-#include "compile.h"
-
-#ifdef WLUAJIT
-#include <luajit-2.1/lua.h>
-#include <luajit-2.1/lualib.h>
-#include <luajit-2.1/lauxlib.h>
-#endif
-
-#ifdef WLUA53
-#include <lua5.3/lua.h>
-#include <lua5.3/lualib.h>
-#include <lua5.3/lauxlib.h>
-#endif
-
-#ifdef WLUA51
-#include <lua5.1/lua.h>
-#include <lua5.1/lualib.h>
-#include <lua5.1/lauxlib.h>
-#endif
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 
 // static lua_State *L;
 lua_State* GLSCRIPT;

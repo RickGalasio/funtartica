@@ -6,7 +6,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
-#include <regex.h>
+//#include <regex.h>
 #include "gelua.h"
 #include "playsound.h"
 #include "config.h"

@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # Ricardo L. Gonçalves 2021/01 
 #
@@ -9,119 +8,143 @@
 #set -xv
 
 # Defaults
-WLUA="luajit"
+LUA="luajit"
 DEBUG=""
 MEM=""
-#CC="/usr/bin/gcc"
-CC=$(which gcc clang | tail -n1)
+CC="/usr/bin/gcc"
+#CC=$(which gcc clang | tail -n1)
 OPTS="-Wno-format"
 #OPTS="-std=c11 -pedantic -Wpedantic"
 
 # pharsing parameters
-while [ 1 ]; do
-  if [ "X$1" == "X" ] ; then
-     break
-  fi
+while [ 1 ] ; do
+   PAR="$1"
 
-  if [ "X$(echo $1| egrep '\-')" != "X" ]; then
-    if [ "$1" == "--help" -o "$1" == "-h" -o "$1" == "-help" ] ; then
-     echo "Syntax:"
-     echo "./configure <parameters> <extra (gcc/clang) parameters>"
-     echo ""
-     echo "Parameters:"
-     echo " -h,-help,--help  - This help message."
-     echo " -c,--compiler [gcc|clang]  - Select compiler."
-     echo " -d,--debug  - Enable debug mode."
-     echo " --no-debug - Disable debug mode."
-     echo " -l,--lua [luajit|lua51|lua53]  - Select LUA version."
-     echo " -m,--mem # Debug memory leak (sanitizer)."
-     echo " --no-mem  - Disable sanitizer memory leak debug."
-     echo ""
-     echo " * Note: all gcc and clang parameters are supported."
-     exit 0
-    fi
-    
-    if [ "$1" == "--lua" -o "$1" == "-l" ] ; then
-      shift
-      WLUA=$1
-      echo set lua WLUA=$WLUA
-    fi
+   case "X$PAR" in
+   
+     "X")
+       echo "Fim dos parametros: [$1 $2 $3]"
+       break
+       ;;
+     
+     "X--help" | "X-h" | "X-help")
+       echo "Syntax:"
+       echo "./configure <parameters> <extra (gcc/clang) parameters>"
+       echo ""
+       echo "Parameters:"
+       echo " -h,-help,--help  - This help message."
+       echo " -c,--compiler [gcc|clang|mingw]  - Select compiler."
+       echo " -d,--debug  - Enable debug mode."
+       echo " --no-debug - Disable debug mode."
+       echo " -l,--lua [luajit|lua51|lua53]  - Select LUA version."
+       echo " -m,--mem # Debug memory leak (sanitizer)."
+       echo " --no-mem  - Disable sanitizer memory leak debug."
+       echo ""
+       echo " * Note: all gcc and clang parameters are supported."
+       exit 0
+       ;;
+     
+     "X--lua" | "X-l")
+		   echo PAR:$PAR
+       shift
+       LUA=$1
+       echo LUA=$LUA
+       ;;
+     
+     "X--mem" | "X-m")
+		  echo PAR:$PAR
+       shift
+       MEM="-fsanitize=address -fno-omit-frame-pointer -O3"
+       #ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
+       #DEBUG="-g -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope -O3"
+       ;;
+     
+     "X--no-mem") 
+		  echo PAR:$PAR
+       shift
+       MEM=""
+       ;;
+     
+     "X--debug" | "X-d")
+		  echo PAR:$PAR
+       shift
+       DEBUG="-g"
+       ;;
+     
+     "X--no-debug")
+		  echo PAR:$PAR
+       shift
+       DEBUG=""
+       ;;
+     
+     "X--compiler" | "X-c")
+		  echo PAR:$PAR
+       shift
+       if [ "X$(echo $1 | grep mingw)" != "X" ] ; then
+          echo CROSS PARAMS
+          CC=/usr/bin/x86_64-w64-mingw32-gcc
+          INCLUDES="-I WINLIBS/mingw64/include -I WINLIBS/SDL2-2.0.16/x86_64-w64-mingw32/include -I WINLIBS/SDL2-2.0.16/x86_64-w64-mingw32/include/SDL2 -I WINLIBS/SDL2_image-2.0.5/x86_64-w64-mingw32/include -I WINLIBS/SDL2_mixer-2.0.4/x86_64-w64-mingw32/include -I WINLIBS/SDL2_ttf-2.0.15/x86_64-w64-mingw32/include"
+          LIBS="-pthread -mwindows -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lm -g -L WINLIBS/SDL2-2.0.16/x86_64-w64-mingw32/lib -L WINLIBS/SDL2-2.0.16/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_image-2.0.5/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_image-2.0.5/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_mixer-2.0.4/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_mixer-2.0.4/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib -W WINLIBS/lua51.dll"
+          cd WINLIBS
+          ./configcross.sh
+          cd ../
+       else
+         CC=$(which gcc clang | grep $1)
+       fi
+       ;;
 
-    if [ "$1" == "--mem" -o "$1" == "-m" ] ; then
-      shift
-      MEM="-fsanitize=address -fno-omit-frame-pointer -O3"
-      #ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
-      #DEBUG="-g -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope -O3"
-    fi
+       *)
+         echo "PAR:$PAR"
+         ;;
+   
+   esac
+   
+   shift
+	 echo shift... 
 
-    if [ "$1" == "--no-mem" ] ; then
-      shift
-      MEM=""
-    fi
-
-    if [ "$1" == "--debug" -o "$1" == "-d" ] ; then
-      shift
-      DEBUG="-g"
-    fi
-
-    if [ "$1" == "--no-debug" ] ; then
-      shift
-      DEBUG=""
-    fi
-
-    if [ "$1" == "--compiler" -o "$1" == "-c" ] ; then
-      shift
-      CC=$(which gcc clang | grep $1)
-    fi
-    
-    if [ "X$(echo $1|egrep '\=')" != "X" ] ; then
-      OPTS+=" $1"
-      echo 1 set extra options OPTS=$OPTS
-    fi
-
-    if [ "X$(echo $1|egrep -v '\='|egrep -v '\-\-'|egrep '\-' )" != "X" ] ; then
-      OPTS+=" $1"
-      echo 2 set extra options OPTS=$OPTS
-      if [ "X$(echo $2|egrep -v '\-' )" != "X" ] ; then
-        shift
-        OPTS+=" $1"
-        echo 3 set extra options OPTS=$OPTS
-      fi
-    fi
-
-  fi
-  shift
 done
 
-if [ "$WLUA" == "luajit" ] ; then
-   echo "#define WLUAJIT" > compile.h
-   XLUA=luajit
-   echo set lualib XLUA=$XLUA
+if [ "X$(echo $CC|grep mingw)" == "X" ] ; then
+echo LINUX COMPILE
+
+echo escolhe LUA: $LUA
+
+if [ $LUA == "luajit" ]; then
+  INCLUDES="-I /usr/include/luajit-2.1/"
+  PLIBS=$LUA
+fi
+if [ $LUA == "lua51" ]; then
+  INCLUDES="-I /usr/include/lua5.1/"
+  PLIBS=$LUA
+fi
+if [ $LUA == "lua53" ]; then
+  INCLUDES="-I /usr/include/lua5.3/"
+  PLIBS=$LUA
 fi
 
-if [ "$WLUA" == "lua51" ] ; then
-  echo "#define WLUA51" > compile.h
-  XLUA=lua51
-  echo set lualib XLUA=$XLUA
-fi
+PLIBS="$PLIBS sdl2 SDL2_image SDL2_ttf SDL2_mixer"
 
-if [ "$WLUA" == "lua53" ] ; then
-  echo "#define WLUA53" > compile.h
-  XLUA=lua53
-  echo set lualib XLUA=$XLUA
-fi
+echo CC=$CC
+echo CFLAGS= $(pkg-config --cflags $PLIBS) $DEBUG $MEM $INCLUDES
+echo LIBS=-pthread $(pkg-config --libs $PLIBS) -lm $DEBUG $MEM $LIBS 
 
-
-PLIBS="sdl2 SDL2_image SDL2_ttf SDL2_mixer $XLUA"
-
-if [ "X$OPTS" != "X" ]; then
-   echo ""
-   echo " gcc/clang parameters: $OPTS"
-   echo ""
-fi
 cat<<EOF>config.mk
 CC=$CC
-CFLAGS= $(pkg-config --cflags $PLIBS) $DEBUG $MEM $OPTS
-LIBS=-pthread $(pkg-config --libs $PLIBS) -lm $DEBUG $MEM $OPTS
+CFLAGS= $(pkg-config --cflags $PLIBS) $DEBUG $MEM $INCLUDES
+LIBS=-pthread $(pkg-config --libs $PLIBS) -lm $DEBUG $MEM $LIBS 
 EOF
+
+else
+
+echo CROSS COMPILES MINGW
+
+cat<<EOF>config.mk
+CC=$CC
+CFLAGS= $INCLUDES
+LIBS=-pthread -lm $LIBS 
+EOF
+
+fi
+
 make clean
+

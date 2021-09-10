@@ -5,18 +5,18 @@
 #include "gelua.h"
 
 //-------------------------------------------------------------------
-int regexcmp(char *myregex, char *inputstring) {
-	/* aloca espaço para a estrutura do tipo regex_t */
-	regex_t reg;
-	// compile the Regular Expression of myregex
-	// If error, return != 0 (-1)
-	if (regcomp(&reg, myregex, REG_EXTENDED | REG_NOSUB | REG_ICASE) != 0) {
-		ERR("regcomp");
-		return -1;
-	}
-	// compare regex and inputstring
-	return regexec(&reg, inputstring, 0, (regmatch_t *) NULL, 0);
-}
+// int regexcmp(char *myregex, char *inputstring) {
+// 	/* aloca espaço para a estrutura do tipo regex_t */
+// 	regex_t reg;
+// 	// compile the Regular Expression of myregex
+// 	// If error, return != 0 (-1)
+// 	if (regcomp(&reg, myregex, REG_EXTENDED | REG_NOSUB | REG_ICASE) != 0) {
+// 		ERR("regcomp");
+// 		return -1;
+// 	}
+// 	// compare regex and inputstring
+// 	return regexec(&reg, inputstring, 0, (regmatch_t *) NULL, 0);
+// }
 ///if(!regexcmp("<[[:alnum:]]+>", xval)){ ...}
 ///if(!regexcmp("([^[:space:]_]+_[^[:space:]_]+)_([[:digit:]]+)_([[:digit:]]+)(_[+-])?", xval)){ ...}
 //-------------------------------------------------------------------

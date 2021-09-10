@@ -1,13 +1,16 @@
 -include config.mk
 
-ge:             ge.o menu.o console.o getileset.o gensprite.o debug.o inifiles.o gelua.o globals.o inputs.o playsound.o
-	$(CC) -o ge ge.o menu.o console.o getileset.o gensprite.o debug.o inifiles.o gelua.o globals.o inputs.o playsound.o $(LIBS)
+ge:             ge.o menu.o console.o getileset.o rnd.o gensprite.o debug.o inifiles.o gelua.o globals.o inputs.o playsound.o
+	$(CC) -o ge ge.o menu.o console.o getileset.o rnd.o gensprite.o debug.o inifiles.o gelua.o globals.o inputs.o playsound.o $(LIBS)
 
 console.o: console.c console.h config.h
 	$(CC) -c console.c $(CFLAGS)
 
 menu.o: menu.c menu.h config.h
 	$(CC) -c menu.c $(CFLAGS)
+
+rnd.o: rnd.c rnd.h
+	$(CC) -c rnd.c $(CFLAGS)
 
 gensprite.o: gensprite.c gensprite.h config.h
 	$(CC) -c gensprite.c $(CFLAGS)
@@ -37,7 +40,7 @@ ge.o: ge.c ge.h globals.h config.h
 	$(CC) -c ge.c $(CFLAGS)
 
 clean:
-	rm -f ge *.o ./log/*.log 
+	rm -f ge ge.exe *.o ./log/*.log 
 
 test: ge
 	./ge

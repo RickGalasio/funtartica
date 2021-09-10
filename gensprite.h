@@ -39,9 +39,5 @@ SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr);
 int setpixel(SDL_Surface *sptsurface, int spritew, int spriteh,int pixelx, int pixely,
 	SDL_Color pxcolor);
 
-static unsigned int lastseed=0;
-static unsigned int mseed=0;
-void msrand(int zseed);
-unsigned int mrand(void);
 // - EOF
 #endif

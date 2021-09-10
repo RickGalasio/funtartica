@@ -59,6 +59,10 @@ char *parservar(char *intext){
 //---------------------------------------------------------------^
 
 //---------------------------------------------------------------v
+#ifdef __cplusplus
+extern "C"
+#endif
+
 int main(int argc, char *argv[]){
 	DBG_INIT("START G.ENGINE");
 	srand(time(0));
