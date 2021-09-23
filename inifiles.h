@@ -114,6 +114,12 @@ char * ini_get_next_inline(
 //After using the allocated pointer, the returned pointer must be released with free();
 char *ini_get_lua(char *sname_file, char *section, char *inlinename);
 
+int ini_get_color( 
+    SDL_Color *color,
+    const char *sname_file,
+    const char *section,
+    const char *svalue,
+    const char *sdefault);
 #endif
 /*******************************************************/
 

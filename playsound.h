@@ -5,7 +5,7 @@
 
 Mix_Chunk* sound[DMAXSOUNDS];
 
-void initSound(void);
+void GE_load_sounds(void);
 
 void Quit_sound(void);
 

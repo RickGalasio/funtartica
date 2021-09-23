@@ -3,7 +3,7 @@
 #include "globals.h"
 #include "inifiles.h"
 
-void initSound(void){
+void GE_load_sounds(void){
   if (Mix_AllocateChannels(ini_get_int(configfile, "sound", "channels", 2)) < 0){
     ERR("Unable to allocate mixing channels: %s\n", SDL_GetError());
     return;

@@ -7,15 +7,15 @@
 #include <string.h>
 #include <time.h>
 
-#define DBG_INIT( ...) sprintf(dbg_mess, __VA_ARGS__); __dbg_init__( dbg_mess, __FILE__, __LINE__ )
-#define DBG( ...) sprintf(dbg_mess, __VA_ARGS__); __dbg__(dbg_mess, __FILE__, __LINE__) 
-#define MSG( ...) sprintf(dbg_mess, __VA_ARGS__); __dbg__(dbg_mess, __FILE__, __LINE__) 
-#define LOG( ...) sprintf(dbg_mess, __VA_ARGS__); __dbg__(dbg_mess, __FILE__, __LINE__) 
-#define ERR( ...) sprintf(dbg_mess, "ERR: " __VA_ARGS__); __dbg__(dbg_mess, __FILE__, __LINE__)
+#define DBG_INIT( ...) snprintf(dbg_mess,sizeof(dbg_mess), __VA_ARGS__); __dbg_init__( dbg_mess, __FILE__, __LINE__ )
+#define DBG( ...) snprintf(dbg_mess,sizeof(dbg_mess), __VA_ARGS__)< 0 ? abort() : (void)0; __dbg__(dbg_mess, __FILE__, __LINE__) 
+#define MSG( ...) snprintf(dbg_mess,sizeof(dbg_mess), __VA_ARGS__)< 0 ? abort() : (void)0; __dbg__(dbg_mess, __FILE__, __LINE__) 
+#define LOG( ...) snprintf(dbg_mess,sizeof(dbg_mess), __VA_ARGS__)< 0 ? abort() : (void)0; __dbg__(dbg_mess, __FILE__, __LINE__) 
+#define ERR( ...) snprintf(dbg_mess,sizeof(dbg_mess), "ERR: " __VA_ARGS__)< 0 ? abort() : (void)0; __dbg__(dbg_mess, __FILE__, __LINE__)
 #define DB DBG(".")
 
-#define TVARS( a ) sprintf(dbg_mess, # a ":%s", a ); __dbg__(dbg_mess, __FILE__, __LINE__)
-#define TVARD( a ) sprintf(dbg_mess, # a ":%d", a ); __dbg__(dbg_mess, __FILE__, __LINE__)
+#define TVARS( a ) snprintf(dbg_mess,sizeof(dbg_mess), # a ":%s", a )< 0 ? abort() : (void)0; __dbg__(dbg_mess, __FILE__, __LINE__)
+#define TVARD( a ) snprintf(dbg_mess,sizeof(dbg_mess), # a ":%d", a )< 0 ? abort() : (void)0; __dbg__(dbg_mess, __FILE__, __LINE__)
 
 void __dbg_init__( char *log_mess, char *n_file ,int n_line);
 

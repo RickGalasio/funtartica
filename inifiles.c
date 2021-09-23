@@ -127,7 +127,7 @@ void *ini_get_malloc_str(
 		exit(1);
 	}
   
-	DBG("Reservando %d bytes", sizeof(char) * (strlen(svalue) + 1));
+	// DBG("%lu bytes Reserved", sizeof(char) * (strlen(svalue) + 1));
 
 	bzero(spatt, sizeof(char) * (strlen(svalue) + 1));
 	char *buffer;
@@ -545,7 +545,39 @@ char *ini_get_lua(char *sname_file, char *section, char *inlinename){
 }
 //---------------------------------------------------------------^
 
+int ini_get_color( 
+    SDL_Color *color,
+    const char *sname_file,
+    const char *section,
+    const char *svalue,
+    const char *sdefault){
 
+    char cxcolor[15];
+    LETS(cxcolor, ini_get_str(sname_file, section, svalue, sdefault));
+		
+	if (sscanf(cxcolor, "%x,%x,%x,%x",
+					(unsigned int*)&color->r,
+					(unsigned int*)&color->g,
+					(unsigned int*)&color->b,
+					(unsigned int*)&color->a ) != 4){		
+		ERR("Syntax error in color. [%s] %s=%s ",section,svalue,cxcolor);
+		if(sscanf(sdefault, "%x,%x,%x,%x",
+					(unsigned int*)&color->r,
+					(unsigned int*)&color->g,
+					(unsigned int*)&color->b,
+					(unsigned int*)&color->a ) != 4){
 
+			ERR("  Syntax error in default color: %s",sdefault);
+			
+			color->r = 0;
+			color->g = 0;
+			color->b = 0;
+			color->a = 255;
+		}
+	}
+	DBG("Color: [%s] %s=%s ",section,svalue,cxcolor);
+
+    return 0;
+}
 
 // - EOF

@@ -13,7 +13,12 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include "gelua.h"
+#include "rnd.h"
 #include "console.h"
+
+#ifdef EMCC
+#include <emscripten.h>
+#endif
 
 bool quit=false;
 
@@ -31,7 +36,7 @@ SDL_Texture *texturefont;
 SDL_Surface *icon;
 
 SDL_Color bgcolor = { 0x00, 0x00, 0x00, 0xff };
-char ccolor[12]="00,00,00,00";
+//char ccolor[12]="00,00,00,00";
 unsigned int cr,cg,cb,ca;
 char *linetext;
 
@@ -42,6 +47,19 @@ char *filescript;
 char *filescriptend;
 
 char *parservar(char *intext);
+
+void GE_load_debug_box(void);
+
+
+char spriteN[9]; //"sprite1" ... "sprite99"
+char animationSTUFFS[20];
+char animaNframeN[15]; //"anima1frame1" .. "anima99frame99"
+char filename[50];
+
+void GE_load_sprites(void);
+
+int fonts;
+void GE_load_fonts(void);
 
 int main(int argc, char *argv[]);
 

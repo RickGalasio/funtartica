@@ -51,14 +51,8 @@ SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
 
 	TVARD(colors);
 	for (int i = 1; i <= colors; i++){
-		// DBG("---------------");
 		LETSF(xcolor, "pixel:color%d", i);
-		LETS(cxcolor, ini_get_str(configfile, spriteN, xcolor, "ff,ff,ff,ff"));
-
-		if (sscanf(cxcolor, "%x,%x,%x,%x", &pcolor[i - 1].r, &pcolor[i - 1].g, &pcolor[i - 1].b, &pcolor[i - 1].a) != 4){
-			ERR("%s in sprite %s", xcolor, spriteN);
-			pcolor[i].r = pcolor[i].g = pcolor[i].b = pcolor[i].a = 0;
-		}
+		ini_get_color(&pcolor[i-1],configfile, spriteN, xcolor, "ff,ff,ff,ff");
 	}
 
 	//--------------------------------------------------------------------
@@ -86,7 +80,7 @@ SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
 		if (!strlen(linha)){
 			break;
 		}
-		DBG("map:%0.2d[%s]", y, linha);
+		// DBG("map:%0.2d[%s]", y, linha);
 		for (x = 0; x < spritew; x++){
 			if (linha[x] != '.'){
 				PIXMASK(x, y) = 1;
@@ -179,7 +173,7 @@ SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
 			}
 		}
 		xline[spritew + 1] = 0;
-		DBG("%0.2d[%s]", y1, xline);
+		// DBG("%0.2d[%s]", y1, xline);
 	}
 	free(xline);
 

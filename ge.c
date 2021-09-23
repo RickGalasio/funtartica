@@ -11,11 +11,12 @@
 #include "gensprite.h"
 
 //---------------------------------------------------------------v
+// fast parse variables in strigs
 char *parservar(char *intext){
 	char xvarname[DMAXVARNAME_I];
 	char svalor[255];
 	int a=0, b=0, c=0, o=0;
-	size_t outlen=1*sizeof(char); 
+	size_t outlen=1*sizeof(char);  
 	bool conta=true;
 	while(intext[a]!='\0'){
 	   if(intext[a]=='%') {
@@ -58,156 +59,9 @@ char *parservar(char *intext){
 }
 //---------------------------------------------------------------^
 
-//---------------------------------------------------------------v
-#ifdef __cplusplus
-extern "C"
-#endif
-
-int main(int argc, char *argv[]){
-	DBG_INIT("START G.ENGINE");
-	srand(time(0));
-	msrand(time(0));
-
-	DBG("srand");
-
-	//--parametrer of command line----------------------v
-	MALETS(configfile, "./ge.ini");
-	for (int i = 1; argv[i]; ++i){
-		if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "-help")){
-			MSG(DHELP);
-			exit(0); 
-		}else if (!strcmp(argv[i], "-c") || !strcmp(argv[i], "-config")){
-			i++;
-			FREESEC(configfile);
-			MALETS(configfile, argv[i]);
-			// TVARS(argv[i]);
-		}else{
-			ERR("Parameter does not exist!: %s", argv[i]);
-			exit(1);
-		}
-	}
-	//--parametrer of command line----------------------^
-
-    //   size_t ii;
-	//   for(ii=0;ii<7-1;ii++){
-    //     MSG("spatt[%d]=spatt[%d]",(int)ii,(int)ii+1);
-	//   }
-	//   MSG("spatt[%d]=ch",(int)ii);
-	//   //spatt[ii]=ch;
-	// char *parametro=ini_get_malloc_str(configfile,"sprite1","salmo","NADA");
-	// DBG("Esse foi imenso:[%s]",parametro);
-	// free(parametro);
-
-	//##
-	// MSG("ANTES DO INI");
-	// exit(1);
-    ldebug = ini_get_bool(configfile, "global", "debug", false);
-	hide = ini_get_bool(configfile, "global", "hide", false);
-	showbox = ini_get_bool(configfile, "global", "showbox", false);
-	consoleborder = ini_get_int(configfile, "global", "consoleborder",20);
-
-	LETS(ccolor, ini_get_str(configfile, "global", "sptboxcolor", "ff,ff,ff,ff"));
-	if (sscanf(ccolor, "%x,%x,%x,%x", &cr, &cg, &cb, &ca) != 4){
-		ERR("sptboxcolor in global");
-		sptboxcolor.r = 0;
-		sptboxcolor.g = 0;
-		sptboxcolor.b = 0;
-		sptboxcolor.a = 255;
-	}else{
-		sptboxcolor.r = cr;
-		sptboxcolor.g = cg;
-		sptboxcolor.b = cb;
-		sptboxcolor.a = ca;
-	}
-
-	LETS(ccolor, ini_get_str(configfile, "global", "attackboxcolor", "ff,ff,ff,ff"));
-	if (sscanf(ccolor, "%x,%x,%x,%x", &cr, &cg, &cb, &ca) != 4){
-		ERR("atackboxcolor in global");
-		attackboxcolor.r = 0;
-		attackboxcolor.g = 0;
-		attackboxcolor.b = 0;
-		attackboxcolor.a = 255;
-	}else{
-		attackboxcolor.r = cr;
-		attackboxcolor.g = cg;
-		attackboxcolor.b = cb;
-		attackboxcolor.a = ca;
-	}
-	
-	LETS(ccolor, ini_get_str(configfile, "global", "defenseboxcolor", "ff,ff,ff,ff"));
-	if (sscanf(ccolor, "%x,%x,%x,%x", &cr, &cg, &cb, &ca) != 4){
-		ERR("defenseboxcolor in global");
-		defenseboxcolor.r = 0;
-		defenseboxcolor.g = 0;
-		defenseboxcolor.b = 0;
-		defenseboxcolor.a = 255;
-	}else{
-		defenseboxcolor.r = cr;
-		defenseboxcolor.g = cg;
-		defenseboxcolor.b = cb;
-		defenseboxcolor.a = ca;
-	}
-
-	// Inicia SDL
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS | SDL_INIT_AUDIO) < 0){
-		ERR("Unable to start SDL2: %s", SDL_GetError());
-		exit(1);
-	}else{
-		DBG("SDL2 started.");
-	}
-
-	width = ini_get_int(configfile, "global", "w", 1024);
-	height = ini_get_int(configfile, "global", "h", 768);
-
-	if (SDL_CreateWindowAndRenderer(width, height, 
-	 SDL_RENDERER_ACCELERATED |
-	 SDL_WINDOW_SHOWN |
-	 SDL_WINDOW_INPUT_FOCUS, &windscr, &rendscr)){
-		ERR("Couldn't create window and renderer: %s", SDL_GetError());
-		return 0;
-	}
-
-	if (windscr == NULL){
-		ERR("Unable to open window: %s", SDL_GetError());
-		return 0;
-	}else{
-		DBG("Window, ok.");
-	}
-
-	// Inicia buffer de tela, screen
-	char project[200];
-	LETS(project, ini_get_str(configfile, "global", "name", "GEngine version:" PG_VER));
-	SDL_SetWindowTitle(windscr, (const char *)project);
-
-	char fileicon[25];
-	LETS(fileicon, ini_get_str(configfile, "global", "icon", "./img/GE.png"));
-	if ((icon = IMG_Load((const char *)fileicon)) == NULL){
-		ERR("Unable to open icon file:%s", fileicon);
-		return 0;
-	}else{
-		MSG("Icon file, ok (w:%d,h:%d)", icon->w, icon->h);
-		SDL_SetWindowIcon(windscr, icon);
-	}
-
-	/* Inicia TTF lib */
-	if (TTF_Init() < 0){
-		ERR("Unable to start SDL2_TFF: %s", SDL_GetError());
-		return 0;
-	}else{
-		DBG("SDL_ttf, ok.");
-	}
-
-	if (Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 512) < 0){
-		ERR("Unable to Mix_OpenAudio(): %s\n", SDL_GetError());
-		return 0;
-	}else{
-		MSG("Mix_OpenAudio, ok.");
-		MSG("TODO: Colocar parametros de audio em .INI");
-	}
-
-	int fonts = ini_get_int(configfile, "global", "fonts", 1) - 1;
-	initSound();
+void GE_load_fonts(void){
 	// Carrega fonte default
+	fonts = ini_get_int(configfile, "global", "fonts", 1) - 1;
 	for (int nf = 0; nf <= fonts; nf++){
 		// unsigned int r, g, b;
 		char filenamefont[50];
@@ -222,28 +76,13 @@ int main(int argc, char *argv[]){
 
 		MALETS(font[nf].text, ini_get_str(configfile, sfont, "text", "NULL"));
 
-		LETS(ccolor, ini_get_str(configfile, sfont, "color", "00,FF,00,00"));
-		if (sscanf(ccolor,
-		    "%x,%x,%x,%x",
-			&cr,&cg,&cb,&ca) != 4)
-		{
-			ERR("Parâmetro de cor, errado em: %s", sfont);
-			font[nf].color.r = 0;
-			font[nf].color.g = 0;
-			font[nf].color.b = 0;
-			font[nf].color.a = 255;
-		}else{
-			font[nf].color.r = cr;
-			font[nf].color.g = cg;
-			font[nf].color.b = cb;
-			font[nf].color.a = ca;
-		}
+		ini_get_color(&font[nf].color, configfile, sfont, "color", "00,FF,00,00");
 
 		// font[nf].color.a=a;
 		font[nf].color.a = 0; // Verificar se transparencia funciona;
 		if ((font[nf].body = TTF_OpenFont(filenamefont, ini_get_int(configfile, sfont, "size", 12))) == NULL){
 			ERR("Error opening file:%s", filenamefont);
-			return 0;
+			exit(1);
 		}
 
 		fstyle = 0;
@@ -270,20 +109,24 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-	// DB;
-	
-    //###
-	//  DBG("SAIDA ANTES SPRITES");
-	//  exit(1);
-	//  goto Quit_GE;
+}
 
-	char spriteN[9]; //"sprite1" ... "sprite99"
-	char animationSTUFFS[20];
-	char animaNframeN[15]; //"anima1frame1" .. "anima99frame99"
-	char filename[50];
+void GE_load_debug_box(void){
+    ldebug = ini_get_bool(configfile, "global", "debug", false);
+	hide = ini_get_bool(configfile, "global", "hide", false);
+	showbox = ini_get_bool(configfile, "global", "showbox", false);
+	consoleborder = ini_get_int(configfile, "global", "consoleborder",20);
 
-	//===Load GE_sprites==========================================================================================v
-	// DBG("Load GE_sprites");
+    if(showbox){
+		ini_get_color(&sptboxcolor,configfile, "global", "sptboxcolor", "ff,ff,ff,ff");
+   		ini_get_color(&attackboxcolor,configfile, "global", "attackboxcolor", "ff,ff,ff,ff");
+	    ini_get_color(&defenseboxcolor, configfile, "global", "defenseboxcolor", "ff,ff,ff,ff");
+	}
+}
+
+void GE_load_sprites(void){
+	//===Load sprites==========================================================================================v
+	DBG("GE_loadsprites()");
 	for (sprites = 0; sprites < ini_get_int(configfile, "global", "sprites", 1); sprites++){
 		LETSF(spriteN, "sprite%d", sprites + 1);
 
@@ -345,21 +188,8 @@ int main(int argc, char *argv[]){
 			//tcolor is an temporary color RGBA value for tilemap.
 			// DBG("tcolor is an temporary color RGBA value for tilemap.");
 			SDL_Color mtcolor = {0, 0, 0, 0};
-			LETS(ccolor, ini_get_str(configfile, spriteN, "color", "ff,00,00,ff"));
-			// DBG("ccolor=[%s]",ccolor);
 
-			if (sscanf(ccolor, "%x,%x,%x,%x", &cr, &cg, &cb, &ca) != 4){
-				ERR("Wrong color parameters at: %s", ccolor);
-				mtcolor.r = 0;
-				mtcolor.g = 0;
-				mtcolor.b = 0;
-				mtcolor.a = 255;
-			}else{
-				mtcolor.r = cr;
-				mtcolor.g = cg;
-				mtcolor.b = cb;
-				mtcolor.a = ca;
-			}
+			ini_get_color(&mtcolor,configfile, spriteN, "color", "ff,00,00,ff");
 
 			GE_sprite[sprites].animation[0].textFrame[0] = getilemap(configfile,
 				 spriteN, rendscr, mtcolor, width, height);
@@ -411,7 +241,7 @@ int main(int argc, char *argv[]){
 					// Carrega imagem de fundo padrão.
 					if ((surfacetemp = IMG_Load((const char *)filename)) == NULL){
 						ERR("Unable to open sprite-frame file: %s", filename);
-						return 0;
+						exit(0);
 					}else{
 						// DBG("carrega imagem: %s",filename);
 						GE_sprite[sprites].animation[animations].textFrame[frame] = (SDL_Texture *)SDL_CreateTextureFromSurface(rendscr, surfacetemp);
@@ -421,9 +251,110 @@ int main(int argc, char *argv[]){
 			} // for animations
 		} // if character or prop
 	} // for(sprites ...) load sprite-frames
-	//===Load GE_sprites==========================================================================================^
+	//===GE Load sprites==========================================================================================^
+	// DBG("Load GE_sprites END");	
+}
+//---------------------------------------------------------------v
+int main(int argc, char *argv[]){
+	DBG_INIT("START G.ENGINE");
+	
+	DBG("srand");
+	srand(time(0));
+	msrand(time(0));
 
-	// DBG("Load GE_sprites END");
+	//--parametrer of command line----------------------v
+	MALETS(configfile, "./ge.ini");
+	for (int i = 1; argv[i]; ++i){
+		if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "-help")){
+			MSG(DHELP);
+			exit(0); 
+		}else if (!strcmp(argv[i], "-c") || !strcmp(argv[i], "-config")){
+			i++;
+			FREESEC(configfile);
+			MALETS(configfile, argv[i]);
+			// TVARS(argv[i]);
+		}else{
+			ERR("Parameter does not exist!: %s", argv[i]);
+			exit(1);
+		}
+	}
+	//--parametrer of command line----------------------^
+
+	//##
+	// MSG("ANTES DO INI");
+	// exit(1);
+
+	//---Init SDL2----------v
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS | SDL_INIT_AUDIO) < 0){
+		ERR("Unable to start SDL2: %s", SDL_GetError());
+		exit(1);
+	}else{
+		DBG("SDL2 started.");
+	}
+
+	width = ini_get_int(configfile, "global", "w", 1024);
+	height = ini_get_int(configfile, "global", "h", 768);
+
+	if (SDL_CreateWindowAndRenderer(width, height, 
+	 SDL_RENDERER_ACCELERATED |
+	 SDL_WINDOW_SHOWN |
+	 SDL_WINDOW_INPUT_FOCUS, &windscr, &rendscr)){
+		ERR("Couldn't create window and renderer: %s", SDL_GetError());
+		return 0;
+	}
+
+	if (windscr == NULL){
+		ERR("Unable to open window: %s", SDL_GetError());
+		return 0;
+	}else{
+		DBG("Window, ok.");
+	}
+	//---Init SDL2----------^
+
+    //--Init ID Window-----v
+	char project[200];
+	LETS(project, ini_get_str(configfile, "global", "name", "GEngine version:" PG_VER));
+
+	SDL_SetWindowTitle(windscr, (const char *)project);
+
+	char fileicon[25];
+	LETS(fileicon, ini_get_str(configfile, "global", "icon", "./img/GE.png"));
+	if ((icon = IMG_Load((const char *)fileicon)) == NULL){
+		ERR("Unable to open icon file:%s", fileicon);
+	}else{
+		MSG("Icon file, ok (w:%d,h:%d)", icon->w, icon->h);
+		SDL_SetWindowIcon(windscr, icon);
+	}
+	//--Init ID Window-----^
+	
+		
+	//--Init TTF lib-----v
+	if (TTF_Init() < 0){
+		ERR("Unable to start SDL2_TFF: %s", SDL_GetError());
+		return 0;
+	}else{
+		DBG("SDL_ttf, ok.");
+	}
+	//--Init TTF lib-----^
+
+    //--init Audio------v
+	if (Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 512) < 0){
+		ERR("Unable to Mix_OpenAudio(): %s\n", SDL_GetError());
+		return 0;
+	}else{
+		MSG("Mix_OpenAudio, ok.");
+		MSG("TODO: Colocar parametros de audio em .INI");
+	}
+	//--init Audio------^
+
+	GE_load_sounds();
+
+    GE_load_fonts();
+
+    GE_load_debug_box();
+
+	GE_load_sprites();
+
 	// DBG("Load bullets from GE_sprite[SPT_BULLET]");
 	//==Load bullets from GE_sprite[SPT_BULLET]============================================================================v
 	LETS(filename, ini_get_str(configfile, "sprite4", "anima1frame1", "./img/not_found.png"));
@@ -467,22 +398,8 @@ int main(int argc, char *argv[]){
 	//-Init. FPS---^
 
 	int clearbg = ini_get_int(configfile, "global", "clear", 0) - 1;
-	LETS(ccolor, ini_get_str(configfile, "global", "color", "ff,00,00,ff"));
-	// TVARS(ccolor);
-	unsigned int cr,cg,cb,ca;
-	if (sscanf(ccolor,
-	  "%x,%x,%x,%x", &cr, &cg, &cb, &ca) != 4){
-		ERR("Wrong color parameters at: %s", ccolor);
-		bgcolor.r = 0;
-		bgcolor.g = 0;
-		bgcolor.b = 0;
-		bgcolor.a = 255;
-	}else{
-		bgcolor.r = cr;
-    	bgcolor.g = cg;
-		bgcolor.b = cb;
-		bgcolor.a = ca;
-	}
+
+	ini_get_color(&bgcolor,configfile, "global", "color", "ff,00,00,ff");
 	//========================================================================================VVVV
 	SDL_Rect rect;
 	SDL_Rect a, b;
@@ -563,8 +480,7 @@ DBG("Main Loop...");
 // 	goto  Quit_GE;
 // }
 
-while (!quit)
-{
+while (!quit){
 	// TVARD(gepause);
 
 	if (inputs()) goto Quit_GE;
@@ -871,8 +787,4 @@ Quit_GE:
 	DBG("END.");
 	return 0;
 }
-
-
-
-
 // - EOF

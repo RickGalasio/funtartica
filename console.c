@@ -81,8 +81,7 @@ void renderconsole(SDL_Renderer *rendscr, int width, int height, int borders){
     SDL_Texture *consoletexture;
     SDL_Rect textrect;
     int texW = 0, texH = 0;
-    char ccolor[12];
-    int cr,cg,cb,ca;
+    //int cr,cg,cb,ca;
 
     if (consoleon()){
 
@@ -100,20 +99,14 @@ void renderconsole(SDL_Renderer *rendscr, int width, int height, int borders){
             int pitch = 0; 
             SDL_LockTexture(textureconsole, NULL, (void **)&bytes, &pitch);
             unsigned char abgr[4];
-            LETS(ccolor, ini_get_str(configfile, "global", "terminalcolor", "0A,0A,FF,FF"));
-		    if (sscanf(ccolor,"%x,%x,%x,%x",&cr,&cg,&cb,&ca) != 4){
-		    	ERR("Parâmetro de cor, errado em [global], terminalcolor=%s",ccolor);
-		    	abgr[0]=0;
-		    	abgr[1]=0;
-		    	abgr[2]=0;
-		    	abgr[3]=255;
-		    }else{
-		    	abgr[0]=(char) ca;
-		    	abgr[1]=(char) cb;
-		    	abgr[2]=(char) cg;
-		    	abgr[3]=(char) cr;
-		    }
-           
+            SDL_Color rgba;
+             ini_get_color(&rgba, configfile, "global", "terminalcolor", "0A,0A,FF,FF");
+
+            abgr[0]=(char) rgba.a;
+            abgr[1]=(char) rgba.b;
+            abgr[2]=(char) rgba.g;
+            abgr[3]=(char) rgba.r;
+
             for (int y = 0; y < 8; ++y){
                 for (int x = 0; x < 8; ++x){
                     memcpy(&bytes[(y * 8 + x) * sizeof(abgr)], abgr, sizeof(abgr));
@@ -136,19 +129,8 @@ void renderconsole(SDL_Renderer *rendscr, int width, int height, int borders){
             termclean();
             
             // load color of terminal font 
-            LETS(ccolor, ini_get_str(configfile, "global", "terminalfontcolor", "0A,0A,FF,FF"));
-		    if (sscanf(ccolor,"%x,%x,%x,%x",&cr,&cg,&cb,&ca) != 4){
-		    	ERR("Parâmetro de cor, errado em [global], terminalfontcolor=%s",ccolor);
-		    	consolecolor.r = 0;
-		    	consolecolor.g = 0;
-		    	consolecolor.b = 0;
-		    	consolecolor.a = 255;
-		    }else{
-		    	consolecolor.r = cr;
-		    	consolecolor.g = cg;
-		    	consolecolor.b = cb;
-		    	consolecolor.a = ca;
-		    }
+            ini_get_color(&consolecolor,configfile, "global", "terminalfontcolor", "0A,0A,FF,FF");
+
             termlinesview=ini_get_int(configfile, "global", "termlinesview", 30);
             termlineini=0;
             consolesolid=ini_get_bool(configfile,"global", "termsolid", false);

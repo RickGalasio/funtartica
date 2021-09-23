@@ -13,8 +13,8 @@ DEBUG=""
 MEM=""
 CC="/usr/bin/gcc"
 #CC=$(which gcc clang | tail -n1)
-OPTS="-Wno-format"
-#OPTS="-std=c11 -pedantic -Wpedantic"
+#OPTS="-Wno-format"
+OPTS="-std=c11 -pedantic -Wpedantic"
 
 # pharsing parameters
 while [ 1 ] ; do
@@ -23,7 +23,6 @@ while [ 1 ] ; do
    case "X$PAR" in
    
      "X")
-       echo "Fim dos parametros: [$1 $2 $3]"
        break
        ;;
      
@@ -107,7 +106,7 @@ done
 if [ "X$(echo $CC|grep mingw)" == "X" ] ; then
 echo LINUX COMPILE
 
-echo escolhe LUA: $LUA
+echo LUA: $LUA
 
 if [ $LUA == "luajit" ]; then
   INCLUDES="-I /usr/include/luajit-2.1/"
@@ -130,8 +129,8 @@ echo LIBS=-pthread $(pkg-config --libs $PLIBS) -lm $DEBUG $MEM $LIBS
 
 cat<<EOF>config.mk
 CC=$CC
-CFLAGS= $(pkg-config --cflags $PLIBS) $DEBUG $MEM $INCLUDES
-LIBS=-pthread $(pkg-config --libs $PLIBS) -lm $DEBUG $MEM $LIBS 
+CFLAGS= $(pkg-config --cflags $PLIBS) $DEBUG $MEM $INCLUDES $OPTS
+LIBS=-pthread $(pkg-config --libs $PLIBS) -lm $DEBUG $MEM $LIBS $OPTS 
 EOF
 
 else

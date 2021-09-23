@@ -12,8 +12,8 @@
 #include "config.h"
 
 //Static sctrings
-#define LETS(a, b) snprintf(a , sizeof( a ), "%s", b );
-#define LETSF(a, ...) snprintf(a , sizeof( a ), __VA_ARGS__);
+#define LETS(a, b) snprintf(a , sizeof( a ), "%s", b )< 0 ? abort() : (void)0;
+#define LETSF(a, ...) snprintf(a , sizeof( a ), __VA_ARGS__)< 0 ? abort() : (void)0;
 
 //Dynamic allocated of strings
 #define MALETS(a, b) a=malloc(sizeof(char)*(1+strlen( b )));snprintf( a , sizeof(char) * (1+strlen( b )), "%s", b );

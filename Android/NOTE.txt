@@ -1,0 +1,13 @@
+ref: https://developer.android.com/ndk/downloads
+
+
+ref: https://www.reddit.com/r/lua/comments/bm7039/compiling_luajit_for_android_on_windows/
+mingw32-make clean
+set NDK=C:\NDK
+set NDKABI=24
+set NDKVER=%NDK%\toolchains\x86-4.9
+set NDKP=%NDKVER%\prebuilt\windows-x86_64\bin\i686-linux-android-
+set NDKF="--sysroot %NDK%\platforms\android-%NDKABI%\arch-x86"
+mingw32-make HOST_CC="gcc -m32" TARGET_SYS=Linux CROSS=%NDKP% TARGET_FLAGS=%NDKF%
+
+

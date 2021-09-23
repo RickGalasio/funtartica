@@ -31,7 +31,7 @@ static bool lake;
 static unsigned int pixelcolors, actualcolor;
 
 static int colors; 
-static char cxcolor[12];
+//static char cxcolor[12];
 static char xcolor[15];
 
 SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr);
