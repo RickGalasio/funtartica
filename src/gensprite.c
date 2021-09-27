@@ -3,20 +3,19 @@
 #include "debug.h"
 #include "rnd.h"
 
-SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
+SDL_Texture *gensprite( char *spriteN, SDL_Renderer *rendscr){
 	DBG("GENERATING:%s", spriteN);
 	// Dimensions of internal pixels (the final sprite is staggered)
-	spritew = ini_get_int(configfile, spriteN, "pixel:w", 16);
-	spriteh = ini_get_int(configfile, spriteN, "pixel:h", 16);
-	npixels = ini_get_int(configfile, spriteN, "pixel:n", 16 * 16 * 0.20);
-	pixelcolors = ini_get_int(configfile, spriteN, "pixel:colors", 1);
+	spriteh = ini_get_int(spriteN, "pixel:h", 16);
+	spritew = ini_get_int(spriteN, "pixel:w", 16);
+	npixels = ini_get_int(spriteN, "pixel:n", 16 * 16 * 0.20);
+	pixelcolors = ini_get_int(spriteN, "pixel:colors", 1);
 
 	// INI feed random generator with the seed----
 	//
-	TVARS(configfile);
 	TVARS(spriteN);
 	char seed[50];
-	LETS(seed, ini_get_str(configfile, spriteN, "pixel:seed", "rnd"));
+	LETS(seed, ini_get_str(spriteN, "pixel:seed", "rnd"));
 	TVARS(seed);
 
 	if (!strcasecmp(seed, "rnd") || !strcasecmp(seed, "random")){
@@ -36,15 +35,15 @@ SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
 
 	// END feed random generator with the seed----
 
-	mirror = ini_get_bool(configfile, spriteN, "pixel:mirror", false);
-	lake = ini_get_bool(configfile, spriteN, "pixel:lake", false);
+	mirror = ini_get_bool(spriteN, "pixel:mirror", false);
+	lake = ini_get_bool(spriteN, "pixel:lake", false);
 
 	int pixelx, pixely;
 	int x, y;
 	SDL_Texture *genspritetexture;
 	SDL_Surface *tmpsurface;
 
-	colors = ini_get_int(configfile, spriteN, "pixel:colors", 1);
+	colors = ini_get_int(spriteN, "pixel:colors", 1);
 
 	SDL_Color *pcolor;
 	pcolor = (SDL_Color *)malloc(sizeof(SDL_Color) * colors);
@@ -52,20 +51,19 @@ SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr){
 	TVARD(colors);
 	for (int i = 1; i <= colors; i++){
 		LETSF(xcolor, "pixel:color%d", i);
-		ini_get_color(&pcolor[i-1],configfile, spriteN, xcolor, "ff,ff,ff,ff");
+		ini_get_color(&pcolor[i-1], spriteN, xcolor, "ff,ff,ff,ff");
 	}
 
 	//--------------------------------------------------------------------
 	FILE *myinline;
 	char linha[1024];
 
-	TVARS(configfile);
 	TVARS(spriteN);
 
 	char mapspritename[512];
-	LETS(mapspritename, ini_get_str(configfile, spriteN, "pixel:map", "ship"));
+	LETS(mapspritename, ini_get_str(spriteN, "pixel:map", "ship"));
 	TVARS(mapspritename);
-	myinline = ini_fopen_inline(configfile, "maps", mapspritename);
+	myinline = ini_fopen_inline("maps", mapspritename);
 
 	y = 0;
 	x = 0;

@@ -100,7 +100,7 @@ void renderconsole(SDL_Renderer *rendscr, int width, int height, int borders){
             SDL_LockTexture(textureconsole, NULL, (void **)&bytes, &pitch);
             unsigned char abgr[4];
             SDL_Color rgba;
-             ini_get_color(&rgba, configfile, "global", "terminalcolor", "0A,0A,FF,FF");
+             ini_get_color(&rgba, "global", "terminalcolor", "0A,0A,FF,FF");
 
             abgr[0]=(char) rgba.a;
             abgr[1]=(char) rgba.b;
@@ -116,11 +116,11 @@ void renderconsole(SDL_Renderer *rendscr, int width, int height, int borders){
             SDL_UnlockTexture(textureconsole);
 
             char fontname[256];
-            LETS(fontname, ini_get_str(configfile, "global", "terminalfont", "ttf/Arcade.ttf"));
+            LETS(fontname, ini_get_str("global", "terminalfont", "ttf/Arcade.ttf"));
             TVARS(fontname);
             if (
                 (bodyconsolefont = TTF_OpenFont(fontname,
-                    ini_get_int(configfile, "global", "terminalfontsize", 12))) == NULL)
+                    ini_get_int( "global", "terminalfontsize", 12))) == NULL)
             {
                 ERR("Error opening console font file");
                 exit(1);
@@ -129,11 +129,11 @@ void renderconsole(SDL_Renderer *rendscr, int width, int height, int borders){
             termclean();
             
             // load color of terminal font 
-            ini_get_color(&consolecolor,configfile, "global", "terminalfontcolor", "0A,0A,FF,FF");
+            ini_get_color(&consolecolor, "global", "terminalfontcolor", "0A,0A,FF,FF");
 
-            termlinesview=ini_get_int(configfile, "global", "termlinesview", 30);
+            termlinesview=ini_get_int( "global", "termlinesview", 30);
             termlineini=0;
-            consolesolid=ini_get_bool(configfile,"global", "termsolid", false);
+            consolesolid=ini_get_bool("global", "termsolid", false);
             //AQUI INICIO TERMINAL
         }
 
@@ -256,8 +256,8 @@ bool execconsole(char *line){
             termprint(tmp);
         }
         DBG("Global Variables:");
-        for (int i = 0 ; i < varidxi; i++){
-           snprintf(tmp, DMAXLINESCRIPT,"%s=%d",GEVARNAME_I[i],GEI[i]);
+        for (int i = 0 ; i < getmaxvars(); i++){
+           snprintf(tmp, DMAXLINESCRIPT,"%s=%d",getvarnamei(i),getGEI(i));
            termprint(tmp);
         }
    }else if (!strncasecmp("/show ",line,6)){
@@ -283,14 +283,14 @@ bool execconsole(char *line){
                 !strcasecmp("/stop",line) 
               ){
         DBG("paused..");
-        gepause=true;
+        setgepause(true);
     }else if (!strcasecmp("/unpause",line) ||
                !strcasecmp("/continue",line) ||
                !strcasecmp("/cont",line) ||
                !strcasecmp("/start",line) 
              ){
         DBG("unpaused..");
-        gepause=false;
+        setgepause(false);
 
    }else {
     //    LETSF(tmp,"%s",line);
@@ -302,3 +302,4 @@ bool execconsole(char *line){
 }
 
 // - EOF
+

@@ -2,7 +2,7 @@
 #include "inifiles.h"
 #include "debug.h"
 SDL_Texture *getilemap(
-	char *configfile,
+	
 	char *spriteN,
 	SDL_Renderer *rendscr,
 	SDL_Color tcolor,
@@ -15,25 +15,25 @@ SDL_Texture *getilemap(
 	char legendN[50];
 
 	SDL_Rect myrect = {0, 0, 32, 32};
-	myrect.w = ini_get_int(configfile, spriteN, "tilew", 32);
-	myrect.h = ini_get_int(configfile, spriteN, "tileh", 32);
+	myrect.w = ini_get_int(spriteN, "tilew", 32);
+	myrect.h = ini_get_int(spriteN, "tileh", 32);
 
-	// int mosaicw = ini_get_int(configfile, spriteN, "mosaicw", 1);
-	// int mosaich = ini_get_int(configfile, spriteN, "mosaich", 1);
-	LETS(mosaicname, ini_get_str(configfile, spriteN, "mosaic", ""));
+	// int mosaicw = ini_get_int(spriteN, "mosaicw", 1);
+	// int mosaich = ini_get_int(spriteN, "mosaich", 1);
+	LETS(mosaicname, ini_get_str(spriteN, "mosaic", ""));
 	MSG("Mosaic:%s", mosaicname);
 	// DBG("Load Tiles.");
 
 	_getile *getile;
 
-	if (!(getile = malloc(sizeof(_getile) * ini_get_int(configfile, spriteN, "legends", 0)))){
-		ERR("getile malloc :%d", ini_get_int(configfile, spriteN, "legends", 0));
+	if (!(getile = malloc(sizeof(_getile) * ini_get_int(spriteN, "legends", 0)))){
+		ERR("getile malloc :%d", ini_get_int(spriteN, "legends", 0));
 		exit(1);
 	}
 
-	for (int i = 1; i <= ini_get_int(configfile, spriteN, "legends", 0); i++){
+	for (int i = 1; i <= ini_get_int(spriteN, "legends", 0); i++){
 		LETSF(legendN, "legend%d", i);
-		LETS(linelegend, ini_get_str(configfile, spriteN, legendN, " "));
+		LETS(linelegend, ini_get_str(spriteN, legendN, " "));
 		TVARS(linelegend);
 		getile[i - 1].legend = linelegend[0];
 
@@ -82,8 +82,7 @@ SDL_Texture *getilemap(
 		FILE *myinline;
 		// char inlinename[15];
 		// DBG("##############################################################");
-		TVARS(configfile);
-		myinline = ini_fopen_inline(configfile, "sprite1", mosaicname);
+		myinline = ini_fopen_inline("sprite1", mosaicname);
 		bzero(linha, sizeof(linha));
 		while (true){
 			LETS(linha, ini_get_next_inline(myinline, false));
@@ -93,7 +92,7 @@ SDL_Texture *getilemap(
 			for (int c = 0; c < strlen(linha); c++){
 				myrect.x = c * myrect.w;
 				int l = 0;
-				for (l = 0; l < ini_get_int(configfile, spriteN, "legends", 0); l++){
+				for (l = 0; l < ini_get_int(spriteN, "legends", 0); l++){
 					if (getile[l].legend == linha[c])
 						break;
 				}
@@ -111,7 +110,7 @@ SDL_Texture *getilemap(
 		// DBG("##############################################################");
 	}
 	
-	for (int i = 1; i < ini_get_int(configfile, spriteN, "legends", 0); i++){
+	for (int i = 1; i < ini_get_int(spriteN, "legends", 0); i++){
 		SDL_FreeSurface(getile[i - 1].tile);
 	}
 

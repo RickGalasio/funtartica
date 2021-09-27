@@ -7,6 +7,9 @@
 char sret[255 * 2];
 char sinline[1024 * 2];
 
+static char *sname_file;
+void ini_set_configfile(char *fname);
+
 typedef struct _L_SECTION {
     char variable[255];
     char value[255];
@@ -27,7 +30,6 @@ typedef struct _INI_inifile {
 // Get pointer for string in file sname_file, at section and variable svalue.
 // if section or variable not found; return pointer for string sdefault.
 char *ini_get_str(
-    const char *sname_file,
     const char *section,
     const char *svalue,
     const char *sdefault
@@ -36,7 +38,6 @@ char *ini_get_str(
 // Get pointer for string in file sname_file, at section and variable svalue.
 // if section or variable not found; return pointer for string sdefault.
 void *ini_get_malloc_str(
-    const char *sname_file,
     const char *section,
     const char *svalue,
     const char *sdefault
@@ -44,7 +45,6 @@ void *ini_get_malloc_str(
 // Get integer in file sname_file, at section and variable svalue.
 // if section or variable not found; return sdefault integer.
 int ini_get_int(
-    char *sname_file,
     char *section,
     char *svalue,
     const int idefault
@@ -66,7 +66,6 @@ int ini_get_int(
 //| "t"     | "f"      |
 //----------------------
 bool ini_get_bool(
-    char *sname_file,
     char *section,
     char *svalue,
     const bool idefault
@@ -75,7 +74,6 @@ bool ini_get_bool(
 //Return in string pointer &section the pointer to string of ninth [section] name (determined by ene) of file sname_file.
 //The function returns true if sucess or false if not found the section name.
 bool ini_get_nsession(
-    char *sname_file,
     char *section,
     int ene
 ); 
@@ -84,7 +82,6 @@ bool ini_get_nsession(
 //If the function returns false, then the parameter ene points to an existing line in the inline,
 // if it returns false, ene is greater than the maximum line size of the inline plus 1.
 bool ini_get_inline(
-    char *sname_file,
     char *section,
     char *sline,
     int ene
@@ -94,7 +91,6 @@ bool ini_get_inline(
 //Sets the file position indicator for the start of inlinesection{ into the [section] of the ini file sname_file.
 //Then you can call the ini_get_next_inline() function to get the inline content.
 FILE *ini_fopen_inline(
-    char *sname_file,
     char *section,
     char *inlinesection
 );
@@ -112,19 +108,14 @@ char * ini_get_next_inline(
 // with the contents of the inline inlinename{ within the [section] of the sname_file file.
 //ini_get_lua()treating it like a LUA script. Remove comments and empty lines.
 //After using the allocated pointer, the returned pointer must be released with free();
-char *ini_get_lua(char *sname_file, char *section, char *inlinename);
+char *ini_get_lua(char *section, char *inlinename);
 
 int ini_get_color( 
     SDL_Color *color,
-    const char *sname_file,
     const char *section,
     const char *svalue,
     const char *sdefault);
 #endif
 /*******************************************************/
-
-
-
-
 
 // - EOF

@@ -44,19 +44,17 @@ void *realocstr(void *retaloc, char *a){
 //=====================================================^
 
 int initGE(void){
-  varidxs=0;
-  varidxi=0;
-  GEerr=0;
+  maxvars=0;
 
-  for(int i=0;i<DMAXVAR_I;i++){
-     GEI[i]=0;
-     snprintf(GEVARNAME_I[i],DMAXLENSTRING,"NULL");
-  }
+//   for(int i=0;i<DMAXVAR_I;i++){
+//      GEI[i]=0;
+//      snprintf(GEVARNAME_I[i],DMAXLENSTRING,"NULL");
+//   }
 
-  for(int i=0;i<DMAXVAR_S;i++){
-     snprintf(GES[i],DMAXLENSTRING,"NULL");
-     snprintf(GEVARNAME_S[i],DMAXLENSTRING,"NULL");
-  }
+//   for(int i=0;i<DMAXVAR_S;i++){
+//      snprintf(GES[i],DMAXLENSTRING,"NULL");
+//    //   snprintf(GEVARNAME_S[i],DMAXLENSTRING,"NULL");
+//   }
 
   return(0);
 }
@@ -85,55 +83,55 @@ int setGEvarI(char *VarNameString, int varValorI){
             // DBG("sprite encontrado: %s indice: %d",namesprite,i);
             if (!strcasecmp("hide", namevar)){
                GE_sprite[i].hide=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("x", namevar)){
                GE_sprite[i].pos.x=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("y", namevar)){
                GE_sprite[i].pos.y=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("w", namevar)){
                GE_sprite[i].pos.w=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("h", namevar)){
                GE_sprite[i].pos.h=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("life", namevar)){
                GE_sprite[i].life=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("showbox", namevar)){
                GE_sprite[i].showbox=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("attack_x", namevar)){
                GE_sprite[i].boxattack.x=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("attack_y", namevar)){
                GE_sprite[i].boxattack.y=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("attack_w", namevar)){
                GE_sprite[i].boxattack.w=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("attack_h", namevar)){
                GE_sprite[i].boxattack.h=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("defense_x", namevar)){
                GE_sprite[i].boxdefense.x=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("defense_y", namevar)){
                GE_sprite[i].boxdefense.y=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("defense_w", namevar)){
                GE_sprite[i].boxdefense.w=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("defense_h", namevar)){
                GE_sprite[i].boxdefense.h=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("flip", namevar)){
                GE_sprite[i].flip=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }else if (!strcasecmp("tick", namevar)){
                GE_sprite[i].tick=varValorI;
-               goto setGEvarI_END;
+               goto exitsetGEvarI;
             }
          }
       }
@@ -142,24 +140,20 @@ int setGEvarI(char *VarNameString, int varValorI){
       for (int i = 0; i < DMAXVAR_I; i++){
          if (strcasecmp(VarNameString, GEVARNAME_I[i]) == 0){
             GEI[i] = varValorI;
-            GEerr = 0;
             return 0;
 						goto exitsetGEvarI;
 
          }
       }
 
-      if (varidxi >= DMAXVAR_I){
-         ERR("Too much variables! (%s)\n", VarNameString);
-         GEerr = 1;
-         return (-1);
-      }
+      // if (maxvars >= DMAXVAR_I){
+      //    ERR("Too much variables! (%s)\n", VarNameString);
+      //    return (-1);
+      // }
 
-      snprintf(GEVARNAME_I[varidxi], DMAXLENSTRING, "%s", VarNameString);
-      GEI[varidxi] = varValorI;
-      varidxi++; // Add varidx (# of variables)
-setGEvarI_END:
-      GEerr = 0;
+      snprintf(GEVARNAME_I[maxvars], DMAXLENSTRING, "%s", VarNameString);
+      GEI[maxvars] = varValorI;
+      maxvars++; // Add varidx (# of variables)
    }
 exitsetGEvarI:
 	 return 0;
@@ -215,7 +209,6 @@ int getGEvarI(char *VarNameString){
          }
       }
       ERR("sprite variable not found! (%s)\n", VarNameString);
-      GEerr = 1;
       return (0);
    }else{
       //Global Variables
@@ -226,13 +219,34 @@ int getGEvarI(char *VarNameString){
       }
 
       ERR("variable not found! (%s)\n", VarNameString);
-      GEerr = 1;
       return (0);
    }
 }
 
 //=====================================================
+int getmaxvars(void){
+   return maxvars;
+}
+// int setmaxvars(int x){
+//    return maxvars=x;
+// }
 
+char *getvarnamei(int idx){
+   return GEVARNAME_I[idx];
+}
+
+int getGEI(int idx){
+   return GEI[idx];
+}
+
+
+void setgepause(bool setpause){
+   gepause=setpause;
+}
+
+bool getgepause(void){
+   return gepause;
+}
 // void draw_rectangle(SDL_Surface* surface, int x, int y, int width, int height)
 // {
 //     SDL_LockSurface(surface);

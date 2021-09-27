@@ -4,15 +4,6 @@
 #include "debug.h"
 #include "config.h"
 
-// SDL_Texture *gensprite(
-// 	char *configfile,
-// 	char *spriteN,
-// 	SDL_Renderer *rendscr
-// 	);
-
-// int setpixel(SDL_Surface *sptsurface, int spritew, int spriteh,int pixelx, int pixely,
-// 	SDL_Color pxcolor);
-
 static unsigned char *pixel, *pixmask;
 #define PIXEL( x , y ) (pixel+(x)*spritew+(y))[0]
 #define MPIXEL( x , y ) (pixel+(spritew-x-1)*spritew+(y))[0]
@@ -34,7 +25,7 @@ static int colors;
 //static char cxcolor[12];
 static char xcolor[15];
 
-SDL_Texture *gensprite(char *configfile, char *spriteN, SDL_Renderer *rendscr);
+SDL_Texture *gensprite(char *spriteN, SDL_Renderer *rendscr);
 
 int setpixel(SDL_Surface *sptsurface, int spritew, int spriteh,int pixelx, int pixely,
 	SDL_Color pxcolor);

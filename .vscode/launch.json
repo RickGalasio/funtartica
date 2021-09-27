@@ -9,7 +9,8 @@
             "name": "ge",
             "includePath": [
                 "/usr/local/include/SDL2",
-                "/usr/local/include"
+                "/usr/local/include",
+                "/usr/include/luajit-2.1/lua.h"
              ], 
             "type": "cppdbg",
             "request": "launch",

@@ -15,6 +15,9 @@ CC="/usr/bin/gcc"
 #CC=$(which gcc clang | tail -n1)
 #OPTS="-Wno-format"
 OPTS="-std=c11 -pedantic -Wpedantic"
+PWD=$(pwd)
+GE=ge
+
 
 # pharsing parameters
 while [ 1 ] ; do
@@ -81,6 +84,7 @@ while [ 1 ] ; do
        shift
        if [ "X$(echo $1 | grep mingw)" != "X" ] ; then
           echo CROSS PARAMS
+          DEST=windows
           CC=/usr/bin/x86_64-w64-mingw32-gcc
           INCLUDES="-I WINLIBS/mingw64/include -I WINLIBS/SDL2-2.0.16/x86_64-w64-mingw32/include -I WINLIBS/SDL2-2.0.16/x86_64-w64-mingw32/include/SDL2 -I WINLIBS/SDL2_image-2.0.5/x86_64-w64-mingw32/include -I WINLIBS/SDL2_mixer-2.0.4/x86_64-w64-mingw32/include -I WINLIBS/SDL2_ttf-2.0.15/x86_64-w64-mingw32/include"
           LIBS="-pthread -mwindows -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lm -g -L WINLIBS/SDL2-2.0.16/x86_64-w64-mingw32/lib -L WINLIBS/SDL2-2.0.16/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_image-2.0.5/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_image-2.0.5/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_mixer-2.0.4/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_mixer-2.0.4/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib -L WINLIBS/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib -W WINLIBS/lua51.dll"
@@ -88,7 +92,16 @@ while [ 1 ] ; do
           ./configcross.sh
           cd ../
        else
-         CC=$(which gcc clang | grep $1)
+	 if [ "X$(echo $1 | grep emcc)" != "X" ] ; then
+            DEST=web
+            CC=${PWD}/WEB/emsdk/upstream/emscripten/emcc
+            INCLUDES="-g -I src -I WEB/lualib/include -I WEB/emsdk/upstream/emscripten/system/include -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s USE_SDL_MIXER=2 -s SDL2_IMAGE_FORMATS='["png"]'"
+	    LIBS="-s MODULARIZE -s EXPORTED_RUNTIME_METHODS=\[ccall\] -s LINKABLE=1 -s EXPORT_ALL=1 -lSDL2 -lSDL2_ttf -lSDL2_mixer -lm -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s USE_SDL_MIXER=2 -s SDL2_IMAGE_FORMATS='["png"]' --preload-file WEB/ASSETS/@/ -I src -I WEB/lualib/include -L WEB/lualib/lib/liblua.a"
+#          -s MODULARIZE -s EXPORT_ALL=1 -s LINKABLE=1 -all-static -s WASM_OBJECT_FILES=0 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s MODULARIZE -s EXPORTED_RUNTIME_METHODS=\[ccall\]  -s EXPORT_ALL=1 -s LINKABLE=1 -s EXPORT_NAME="ge"
+	 else
+            DEST=linux
+            CC=$(which gcc clang | grep $1)
+	 fi
        fi
        ;;
 
@@ -103,11 +116,9 @@ while [ 1 ] ; do
 
 done
 
-if [ "X$(echo $CC|grep mingw)" == "X" ] ; then
+if [ "$DEST" == "linux" ]; then
 echo LINUX COMPILE
-
 echo LUA: $LUA
-
 if [ $LUA == "luajit" ]; then
   INCLUDES="-I /usr/include/luajit-2.1/"
   PLIBS=$LUA
@@ -120,30 +131,33 @@ if [ $LUA == "lua53" ]; then
   INCLUDES="-I /usr/include/lua5.3/"
   PLIBS=$LUA
 fi
-
 PLIBS="$PLIBS sdl2 SDL2_image SDL2_ttf SDL2_mixer"
-
-echo CC=$CC
-echo CFLAGS= $(pkg-config --cflags $PLIBS) $DEBUG $MEM $INCLUDES
-echo LIBS=-pthread $(pkg-config --libs $PLIBS) -lm $DEBUG $MEM $LIBS 
-
 cat<<EOF>config.mk
 CC=$CC
+GE=ge
 CFLAGS= $(pkg-config --cflags $PLIBS) $DEBUG $MEM $INCLUDES $OPTS
 LIBS=-pthread $(pkg-config --libs $PLIBS) -lm $DEBUG $MEM $LIBS $OPTS 
 EOF
+fi
 
-else
-
-echo CROSS COMPILES MINGW
-
+if [ $DEST == "windows" ] ; then
+echo WINDOWS 
 cat<<EOF>config.mk
 CC=$CC
+GE=ge.exe
 CFLAGS= $INCLUDES
 LIBS=-pthread -lm $LIBS 
 EOF
-
 fi
 
+if [ $DEST == "web" ] ; then
+
+cat<<EOF>config.mk
+CC=$CC
+GE=WEB/ASSETS/ge.js
+CFLAGS= $INCLUDES
+LIBS=$LIBS 
+EOF
+fi
 make clean
 

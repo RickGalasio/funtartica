@@ -3,7 +3,7 @@
 #include "globals.h"
 #include "config.h"
 
-Mix_Chunk* sound[DMAXSOUNDS];
+static Mix_Chunk* sound[DMAXSOUNDS];
 
 void GE_load_sounds(void);
 

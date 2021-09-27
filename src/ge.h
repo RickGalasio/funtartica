@@ -61,6 +61,9 @@ void GE_load_sprites(void);
 int fonts;
 void GE_load_fonts(void);
 
+
+void GE_create_clone_sprites(void);
+
 int main(int argc, char *argv[]);
 
 #endif

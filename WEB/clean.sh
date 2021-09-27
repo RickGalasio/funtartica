@@ -1,3 +1,5 @@
 #!/bin/bash
-rm ../WEB/*.zip ../WEB/*z
+rm -fr ../WEB/emsdk ../WEB/lua-* ../WEB/*z
+rm -fr ../WEB/lualib ../WEB/ASSETS
+
 

@@ -6,6 +6,9 @@
         "*.tcc": "cpp",
         "ge.h": "c",
         "sdl.h": "c",
-        "sdl_main.h": "c"
-    }
+        "sdl_main.h": "c",
+        "types.h": "c",
+        "random": "c"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
 }

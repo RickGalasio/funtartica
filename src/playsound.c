@@ -4,7 +4,7 @@
 #include "inifiles.h"
 
 void GE_load_sounds(void){
-  if (Mix_AllocateChannels(ini_get_int(configfile, "sound", "channels", 2)) < 0){
+  if (Mix_AllocateChannels(ini_get_int("sound", "channels", 2)) < 0){
     ERR("Unable to allocate mixing channels: %s\n", SDL_GetError());
     return;
   }else{
@@ -13,11 +13,11 @@ void GE_load_sounds(void){
 
   // Load waveforms
   memset(sound, 0, sizeof(Mix_Chunk *) * DMAXSOUNDS);
-  for (int i = 0; i < ini_get_int(configfile, "sound", "sounds", 1); i++){
+  for (int i = 0; i < ini_get_int("sound", "sounds", 1); i++){
     char partmp[25];
     char samplefile[25];
     LETSF(partmp, "sound%d", i + 1);
-    LETS(samplefile, ini_get_str(configfile, "sound", partmp, "./sound/error.wav"));
+    LETS(samplefile, ini_get_str("sound", partmp, "./sound/error.wav"));
     sound[i] = Mix_LoadWAV(samplefile);
     if (sound[i] == NULL){
       ERR("Unable to load wave file: %s\n", samplefile);
@@ -30,7 +30,7 @@ void GE_load_sounds(void){
 //---------------------------------------
 void Quit_sound(void){
     
-    for( int i = 0; i < ini_get_int(configfile,"sound","sounds",1); i++ ){    
+    for( int i = 0; i < ini_get_int("sound","sounds",1); i++ ){    
         Mix_FreeChunk(sound[i]);
         sound[i]=NULL;
     }

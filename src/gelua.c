@@ -18,7 +18,7 @@ lua_State* Create_GElua(char *filename, bool readglobal){
       // Carrega variaveis globais int no script
       MSG("Carregando variaveis globais no script");
       for (int i = 0; i < DMAXVAR_I && strcmp(GEVARNAME_I[i], "NULL") != 0; i++){
-         snprintf(tmp, DMAXLINESCRIPT, "%s = \"%d\";", GEVARNAME_I[i], GEI[i]);
+         snprintf(tmp, DMAXLINESCRIPT, "%s = \"%d\";", GEVARNAME_I[i], getGEI(i));
          luaL_dostring(L, tmp);
       }
 //---------------------------------------------------
@@ -106,7 +106,7 @@ lua_State* Create_GEluaS(char *prog, bool readglobal){
       // Carrega variaveis globais int no script
       MSG("Carregando variaveis globais no script");
       for (int i = 0; i < DMAXVAR_I && strcmp(GEVARNAME_I[i], "NULL") != 0; i++){
-         snprintf(tmp, DMAXLINESCRIPT, "%s = \"%d\";", GEVARNAME_I[i], GEI[i]);
+         snprintf(tmp, DMAXLINESCRIPT, "%s = \"%d\";", GEVARNAME_I[i], getGEI(i));
          luaL_dostring(L, tmp);
       }
 //---------------------------------------------------
@@ -186,12 +186,13 @@ int destroy_GElua(lua_State *L){
 static int LsetGEvarI(lua_State *L){
    char VarNameString[DMAXVARNAME_I];
    int varValorI;
+   int ret;
 
    snprintf(VarNameString, sizeof(char)*DMAXVARNAME_I, "%s", luaL_checkstring(L, 1));
    varValorI = luaL_checkinteger(L, 2);
-   GEerr = setGEvarI(VarNameString, varValorI);
+   ret = setGEvarI(VarNameString, varValorI);
 
-   return (GEerr);
+   return (ret);
 }
 
 

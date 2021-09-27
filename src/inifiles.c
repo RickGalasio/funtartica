@@ -6,8 +6,11 @@
 #include "debug.h"
 #include "inifiles.h"
 /*************************************************************************/
-char *ini_get_str(const char *sname_file, 
-					const char *section,
+void ini_set_configfile(char *fname){
+   MALETS(sname_file, fname);	
+}
+
+char *ini_get_str(	const char *section,
 					const char *svalue,
 				  	const char *sdefault)
 {
@@ -21,7 +24,9 @@ char *ini_get_str(const char *sname_file,
 
 	snprintf(t_section, sizeof(char) * 255, "[%s]", section);
 
-	bzero(sread, 255);
+	// bzero(sread, 255);
+	memset(sread,0, 255);
+	// TVARS(sname_file);
 	if ((inifile = fopen(sname_file, "r")) == NULL){
 		ERR("INI File Read Error: %s\n", sname_file);
 		exit(1);
@@ -109,7 +114,6 @@ exit_ini_get_str:
 }
 //=============================================
 void *ini_get_malloc_str(
-	const char *sname_file,
 	const char *section,
 	const char *svalue,
 	const char *sdefault)
@@ -207,19 +211,19 @@ void *ini_get_malloc_str(
 //=============================================
 
 /*********************************************/
-int ini_get_int( char *sname_file, char *section, char *svalue,
+int ini_get_int( char *section, char *svalue,
 		const int idefault){
     char xdefault[255];
 	
     snprintf(xdefault,sizeof(char)*255, "%d", idefault);
-	return atoi(ini_get_str(sname_file, section, svalue, xdefault));
+	return atoi(ini_get_str(section, svalue, xdefault));
 }
 /**********************************************/
 
 //---------------------------------------------------------------v
-bool ini_get_bool(char *sname_file, char *section, char *svalue,
+bool ini_get_bool( char *section, char *svalue,
 		const bool idefault){
-	char *xvar=ini_get_str(sname_file,section,svalue,idefault==true?"true":"false");
+	char *xvar=ini_get_str(section,svalue,idefault==true?"true":"false");
     if(!strcasecmp(xvar,"true")){
 		return true;
 	}else if(!strcasecmp(xvar,"false")){
@@ -263,7 +267,7 @@ bool ini_get_bool(char *sname_file, char *section, char *svalue,
 //---------------------------------------------------------------^
 
 //---------------------------------------------------------------v
-bool ini_get_nsession(char *sname_file, char *section, int ene){
+bool ini_get_nsession( char *section, int ene){
 	FILE *inifile;
 	int ii=0,isect=0;
 	char ch;
@@ -299,7 +303,7 @@ return false;
 //---------------------------------------------------------------^
 
 //---------------------------------------------------------------v
-bool ini_get_inline(char *sname_file, char *section, char *sline, int ene){
+bool ini_get_inline( char *section, char *sline, int ene){
 	FILE *inifile;
 	char sread[255], ch;
 	char line[255];
@@ -377,7 +381,7 @@ bool ini_get_inline(char *sname_file, char *section, char *sline, int ene){
 //---------------------------------------------------------------^
 
 //---------------------------------------------------------------v
-FILE *ini_fopen_inline(char *sname_file, char *section, char *inlinesection)
+FILE *ini_fopen_inline( char *section, char *inlinesection)
 {
 	FILE *inifile;
 	char sread[255], inlinesread[255], ch;
@@ -513,14 +517,14 @@ char *ini_get_next_inline(FILE *inifile, bool scanfullsection ) {
 }
 
 //---------------------------------------------------------------v
-char *ini_get_lua(char *sname_file, char *section, char *inlinename){
+char *ini_get_lua( char *section, char *inlinename){
 	FILE *myinline;
 	char linha[512];
 	size_t offset;
 	char *prog;
 	MALETS(prog, "");
     // DBG("==================================================================");
-	if ((myinline = ini_fopen_inline(sname_file, section, inlinename))){
+	if ((myinline = ini_fopen_inline(section, inlinename))){
 		bzero(linha, sizeof(linha));
 		while (true){
 			LETS(linha, ini_get_next_inline(myinline, false));
@@ -547,13 +551,12 @@ char *ini_get_lua(char *sname_file, char *section, char *inlinename){
 
 int ini_get_color( 
     SDL_Color *color,
-    const char *sname_file,
     const char *section,
     const char *svalue,
     const char *sdefault){
 
     char cxcolor[15];
-    LETS(cxcolor, ini_get_str(sname_file, section, svalue, sdefault));
+    LETS(cxcolor, ini_get_str(section, svalue, sdefault));
 		
 	if (sscanf(cxcolor, "%x,%x,%x,%x",
 					(unsigned int*)&color->r,

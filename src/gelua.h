@@ -5,8 +5,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
-// static lua_State *L;
-lua_State* GLSCRIPT;
+// static lua_State* GLSCIPT;
+static lua_State* GLSCRIPT;
 
 lua_State* Create_GElua(char *filename, bool readglobal);
 lua_State* Create_GEluaS(char *prog, bool readglobal);

@@ -11,7 +11,7 @@
 #include "playsound.h"
 #include "config.h"
 
-//Static sctrings
+//sctrings
 #define LETS(a, b) snprintf(a , sizeof( a ), "%s", b )< 0 ? abort() : (void)0;
 #define LETSF(a, ...) snprintf(a , sizeof( a ), __VA_ARGS__)< 0 ? abort() : (void)0;
 
@@ -28,19 +28,16 @@
 #define FREESEC( a ) if(a != NULL) free( a ); a=NULL;
 
 //Engine Global Variables
-char *configfile;
+static Uint32 fps;
+static int maxvars;
 
-Uint32 fps;
+//char GEVARNAME_S[DMAXVAR_S][DMAXVARNAME_S];
+static char GEVARNAME_I[DMAXVAR_S][DMAXVARNAME_S];
+char *getvarnamei(int idx);
+static int GEI[DMAXVAR_S];
+int getGEI(int idx);
 
-char GEerr;
-int varidxs;
-int varidxi;
-
-char GEVARNAME_S[DMAXVAR_S][DMAXVARNAME_S];
-char GEVARNAME_I[DMAXVAR_S][DMAXVARNAME_S];
-int GEI[DMAXVAR_S];
-char GES[DMAXVAR_S][DMAXLENSTRING];
-// char gensprite[128][128];
+// char GES[DMAXVAR_S][DMAXLENSTRING];
 
 #define DMAXATACKSPRT 1
 #define DMAXDEFENSESPRT 3
@@ -50,7 +47,7 @@ enum _anitype{
    loop,
    forward,
    none
-}_anitype;
+}static _anitype;
 
 enum _spritetype{
    character,
@@ -61,7 +58,7 @@ enum _spritetype{
    gauge,
    procedural,
    composed
-}_spritetype;
+}static _spritetype;
 
 typedef struct animation{
   int maxframes;
@@ -91,9 +88,12 @@ typedef struct _rpg_attr{
   unsigned char XP;
   unsigned char LEVEL;
   element MAGIC;
-} rpg_attr;
+}rpg_attr;
 #endif
-bool gepause;
+static bool gepause;
+void setgepause(bool setpause);
+bool getgepause(void);
+
 //---------------------------Define sprites---v
 typedef struct _sprite {
   char *name;
@@ -119,13 +119,11 @@ typedef struct _sprite {
   int animationidx;
   //------ Variaveis (uso geral) internas do script---v  
 #ifdef DGES  
-  int varidxs;
-  char GEVARNAME_S[DMAXSPRTVAR_S][DMAXSPRTVARNAME_S];
+  // char GEVARNAME_S[DMAXSPRTVAR_S][DMAXSPRTVARNAME_S];
   char GES[DMAXSPRTVAR_S][DMAXSPRTLENSTRING];
 #endif
-  int varidxi;
-  char GEVARNAME_I[DMAXSPRTVAR_I][DMAXSPRTVARNAME_I];
-  int GEI[DMAXSPRTVAR_I]; //------ Variaveis (uso geral) internas do script---^  
+  // char GEVARNAME_I[DMAXSPRTVAR_I][DMAXSPRTVARNAME_I];
+  // int GEI[DMAXSPRTVAR_I]; //------ Variaveis (uso geral) internas do script---^  
   //Scripts do sprite -----v    
   bool script;
   lua_State *SPRTSCRIPT;
@@ -133,7 +131,7 @@ typedef struct _sprite {
   char *fileupdate;
   char *fileend;
   //Scripts fo sprite -----^
-} sprite;
+}sprite;
 //---------------------------Define sprites---^
 
 typedef struct _Clone{
@@ -194,6 +192,9 @@ int initGE(void);
 int setGEvarI(char *VarNameString, int varValorI);
 int getGEvarI(char *VarNameString);
 int Quit_GE(void);
+
+int getmaxvars(void);
+// int setmaxvars(int x);
 
 // void draw_rectangle(SDL_Surface* surface, int x, int y, int width, int height);
 

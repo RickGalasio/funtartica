@@ -44,7 +44,6 @@ typedef struct getileset{
 } _getile;
 
 SDL_Texture *getilemap(
-	char *configfile,
     char *spriteN,
 	SDL_Renderer *rendscr,
 	SDL_Color Tcolor,
