@@ -1,7 +1,11 @@
 #ifndef _PLAYSOUND_H_
 #define _PLAYSOUND_H_
-#include "globals.h"
 #include "config.h"
+#include "debug.h"
+#include "inifiles.h"
+
+#define DCONTEXT extern
+#include "globals.h"
 
 static Mix_Chunk* sound[DMAXSOUNDS];
 

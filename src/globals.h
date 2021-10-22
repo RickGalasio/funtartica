@@ -5,10 +5,12 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+
 #include <stdbool.h>
-//#include <regex.h>
-#include "gelua.h"
-#include "playsound.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+
 #include "config.h"
 
 //sctrings
@@ -19,37 +21,38 @@
 #define MALETS(a, b) a=malloc(sizeof(char)*(1+strlen( b )));snprintf( a , sizeof(char) * (1+strlen( b )), "%s", b );
 #define REALETS(a, b) a=realloc(a, sizeof(char)*(1+strlen( b )));sprintf( a ,"%s", b );
 
-// #define MALETSE(a, b) a=alocstr( b );
-// #define REALETSE(a, b) a=realocstr(a, b);
-
 #define ADDLETS(a, b) a=realloc(a, sizeof(char)*(1+strlen( a ))+sizeof(char)*(1+strlen( b )));sprintf( a ,"%s%s", a , b );
 #define ADDLETSNL(a, b) a=realloc(a, sizeof(char)*(1+strlen( a ))+sizeof(char)*(2+strlen( b )));sprintf( a ,"%s%s\n", a , b );
 
 #define FREESEC( a ) if(a != NULL) free( a ); a=NULL;
 
-//Engine Global Variables
-static Uint32 fps;
-static int maxvars;
+DCONTEXT lua_State* GLSCRIPT;
 
-//char GEVARNAME_S[DMAXVAR_S][DMAXVARNAME_S];
-static char GEVARNAME_I[DMAXVAR_S][DMAXVARNAME_S];
+DCONTEXT int sprites;
+
+//Engine Global Variables
+DCONTEXT Uint32 fps;
+DCONTEXT int maxvars;
+
+DCONTEXT char GEVARNAME_I[DMAXVAR_I][DMAXVARNAME_I];
+
 char *getvarnamei(int idx);
-static int GEI[DMAXVAR_S];
+DCONTEXT int GEI[DMAXVAR_I];
 int getGEI(int idx);
 
-// char GES[DMAXVAR_S][DMAXLENSTRING];
+DCONTEXT enum _inputmode{
+    terminal,
+    menu,
+    play
+} inputmode;
 
-#define DMAXATACKSPRT 1
-#define DMAXDEFENSESPRT 3
-#define DMAXSPRTNAME 30
-
-enum _anitype{
+DCONTEXT enum _anitype{
    loop,
    forward,
    none
-}static _anitype;
+} _anitype;
 
-enum _spritetype{
+DCONTEXT enum _spritetype{
    character,
    prop,
    mosaic,
@@ -58,7 +61,7 @@ enum _spritetype{
    gauge,
    procedural,
    composed
-}static _spritetype;
+} _spritetype;
 
 typedef struct animation{
   int maxframes;
@@ -72,27 +75,7 @@ typedef struct animation{
   SDL_Texture *textFrame[DMAXANIFRAME];
 }GE_animation;
 
-#ifdef DRPG
-typedef struct _element{
-  unsigned char FIRE;
-  unsigned char EARTH;
-  unsigned char WATHER;
-  unsigned char AIR;
-}element;
-
-typedef struct _rpg_attr{
-  unsigned char STR;
-  unsigned char DEX;
-  unsigned char HP;
-  unsigned char IQ;
-  unsigned char XP;
-  unsigned char LEVEL;
-  element MAGIC;
-}rpg_attr;
-#endif
-static bool gepause;
-void setgepause(bool setpause);
-bool getgepause(void);
+DCONTEXT bool gepause;
 
 //---------------------------Define sprites---v
 typedef struct _sprite {
@@ -108,25 +91,13 @@ typedef struct _sprite {
   // --- status of sprite -- v
   int life;
   int ammo;
-  #ifdef DRPG
-  float angle;
-  rpg_attr rpg;
-  #endif
   // --- status of sprite -- ^
   SDL_Rect boxattack;
   SDL_Rect boxdefense;
   GE_animation animation[DMAXSPRTANIMATION];  
   int animationidx;
-  //------ Variaveis (uso geral) internas do script---v  
-#ifdef DGES  
-  // char GEVARNAME_S[DMAXSPRTVAR_S][DMAXSPRTVARNAME_S];
-  char GES[DMAXSPRTVAR_S][DMAXSPRTLENSTRING];
-#endif
-  // char GEVARNAME_I[DMAXSPRTVAR_I][DMAXSPRTVARNAME_I];
-  // int GEI[DMAXSPRTVAR_I]; //------ Variaveis (uso geral) internas do script---^  
   //Scripts do sprite -----v    
   bool script;
-  lua_State *SPRTSCRIPT;
   char *filestart;
   char *fileupdate;
   char *fileend;
@@ -143,20 +114,32 @@ typedef struct _cloneChain{
    Clone startchain;
 } cloneChain;
 
-sprite GE_sprite[DMAXSPRT];
+DCONTEXT sprite GE_sprite[DMAXSPRT];
+DCONTEXT sprite bullets[DBULLETS];
 
-sprite bullets[DBULLETS];
-int sprites;
-bool ldebug;
-bool hide;
-bool showbox;
-int width;
-int height;
+DCONTEXT bool hide;
+DCONTEXT bool showbox;
+DCONTEXT int width;
+DCONTEXT int height;
 
-SDL_Color defenseboxcolor;
-SDL_Color attackboxcolor;
-SDL_Color sptboxcolor;
-SDL_Color textboxcolor;
+DCONTEXT SDL_Color defenseboxcolor;
+DCONTEXT SDL_Color attackboxcolor;
+DCONTEXT SDL_Color sptboxcolor;
+DCONTEXT SDL_Color textboxcolor;
+
+DCONTEXT bool console;
+DCONTEXT int history;
+DCONTEXT char consoletxt[256];
+DCONTEXT char consoletxt_[256];
+
+DCONTEXT char tmp[512];
+DCONTEXT char tmp_[512];
+DCONTEXT struct term_{
+    char txt[256];
+    char txt_[256];
+ }term[DTERMLINES];
+
+DCONTEXT SDL_Event e;
 
 typedef struct _font{
    TTF_Font *body;
@@ -165,12 +148,9 @@ typedef struct _font{
    char *text;
    SDL_Color color;
 }_font;
-
-_font font[10];
-
+DCONTEXT _font font[10];
 
 //-----------------------------------------
-
 int regexcmp(char *myregex, char *inputstring);
 
 Clone *CreateClone( sprite sptr, int x, int y);
@@ -180,23 +160,14 @@ void showClone(Clone *cl, SDL_Renderer *window);
 void DestroyCloneChain(cloneChain *clc);
 
 // Engine Functions
-
 void * alocstr(char *a);
 void * realocstr(void * retaloc, char *a);
 
 int initGE(void);
 
-// int setGEvarS(char *VarNameString, char *varValorS);
-// char *getGEvarS(char *VarNameString);
-
 int setGEvarI(char *VarNameString, int varValorI);
 int getGEvarI(char *VarNameString);
 int Quit_GE(void);
-
-int getmaxvars(void);
-// int setmaxvars(int x);
-
-// void draw_rectangle(SDL_Surface* surface, int x, int y, int width, int height);
 
 #endif
 

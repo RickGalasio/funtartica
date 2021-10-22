@@ -83,7 +83,7 @@ SDL_Texture *getilemap(
 		// char inlinename[15];
 		// DBG("##############################################################");
 		myinline = ini_fopen_inline("sprite1", mosaicname);
-		bzero(linha, sizeof(linha));
+		memset(linha, 0, sizeof(linha));
 		while (true){
 			LETS(linha, ini_get_next_inline(myinline, false));
 			if (!strlen(linha))

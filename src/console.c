@@ -1,30 +1,19 @@
 #include "console.h"
 
-bool consoleon(void){
-    return console;
-}
-
-void toggleconsole(void){
-    console = !console;
-}
-
-void setconsole(bool state){
-    console = state;
-}
-
 void clearconsoletext(void){
-    bzero(consoletxt, sizeof(consoletxt));
-    bzero(consoletxt_, sizeof(consoletxt_));
+    memset(consoletxt, 0, sizeof(consoletxt));
+    memset(consoletxt_, 0, sizeof(consoletxt_));
 }
 
 void termprint(char *txt){
             TVARS(txt);
             history++;
-            // if (history>DTERMLINES) history=0;
+            if (history>DTERMLINES & history<0) history=0;
             if(history>termlinesview+termlineini) 
                 termlineini+=termlinesview+1;
-
+            TVARD(history);
             LETS(term[history].txt,txt);
+
             term[history].txt_[0]='\0';
 }
 
@@ -34,7 +23,6 @@ void termclean(void){
                 // term[i].txt[0] = '\0';
                 term[i].txt_[0] = '\0';
                  LETSF(term[i].txt, "%d:", i);
-                // LETSF(term[i].txt_, "%d:", i);
             }
             // consoletxt[0]='\0';
             // consoletxt_[0]='\0';
@@ -83,8 +71,7 @@ void renderconsole(SDL_Renderer *rendscr, int width, int height, int borders){
     int texW = 0, texH = 0;
     //int cr,cg,cb,ca;
 
-    if (consoleon()){
-
+    if (console){
         // Create textureconsole only once.
         if (!createdconsole && (textureconsole = (SDL_Texture *)SDL_CreateTexture(
                 rendscr,
@@ -194,7 +181,7 @@ bool execconsole(char *line){
    // [/q|/quit|/exit] - Exit of engine.
    if( !strcasecmp("/x",line) || !strcasecmp("/q",line) ||
        !strcasecmp("/quit",line) || !strcasecmp("/exit",line) ){
-       exit(1);
+       GE_quit(0);
 
    // [/cls|/clean|/home] - Clean terminal, history and go to line 0 in terminal
    } else if (!strcasecmp("/cls",line) || !strcasecmp("/clean",line) || !strcasecmp("/clear",line) || !strcasecmp("/home",line) ){
@@ -216,7 +203,7 @@ bool execconsole(char *line){
        LETSF(tmp,"%s",line+5);
        luaL_dostring(GLSCRIPT,tmp);
 
-   // [/ls|/show] <variable> - List all variables or specified <variable> 
+//    [/ls|/show] <variable> - List all variables or specified <variable> 
    } else if (!strcasecmp("/show",line)||!strcasecmp("/ls",line)){
        DBG("Sprite Variables:");
        for (int i = 0 ; i < sprites; i++){
@@ -256,7 +243,7 @@ bool execconsole(char *line){
             termprint(tmp);
         }
         DBG("Global Variables:");
-        for (int i = 0 ; i < getmaxvars(); i++){
+        for (int i = 0 ; i < maxvars; i++){
            snprintf(tmp, DMAXLINESCRIPT,"%s=%d",getvarnamei(i),getGEI(i));
            termprint(tmp);
         }
@@ -271,7 +258,7 @@ bool execconsole(char *line){
    }else if (!strncasecmp("/set ",line,5)){
        int i=5,j=0;
        char varname[50];
-       bzero(varname,sizeof(varname));
+       memset(varname, 0,sizeof(varname));
        do{ 
            varname[j++]=line[i];
            i++;
@@ -283,14 +270,14 @@ bool execconsole(char *line){
                 !strcasecmp("/stop",line) 
               ){
         DBG("paused..");
-        setgepause(true);
+        gepause=true;
     }else if (!strcasecmp("/unpause",line) ||
                !strcasecmp("/continue",line) ||
                !strcasecmp("/cont",line) ||
                !strcasecmp("/start",line) 
              ){
         DBG("unpaused..");
-        setgepause(false);
+        gepause=false;
 
    }else {
     //    LETSF(tmp,"%s",line);

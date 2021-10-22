@@ -1,6 +1,7 @@
 #ifndef _GETILESET_H_
 #define _GETILESET_H_
 
+#define DCONTEXT extern
 #include "globals.h"
 #include "debug.h"
 #include "config.h"
@@ -13,7 +14,7 @@ enum _tiletype {
 	trap,
 	shallow,
 	deep
-}_tiletype;
+}static _tiletype;
 
 /*
  SW N NE
@@ -33,7 +34,7 @@ enum _acesstile {
 	only_vertical,
 	only_in,
 	only_out
-}_acesstile;
+}static _acesstile;
 
 typedef struct getileset{
 	char legend;

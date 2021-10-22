@@ -1,5 +1,7 @@
+#define DCONTEXT extern
 #include "globals.h"
 #include "gelua.h"
+#include "ge.h"
 #include "debug.h"
 
 //=====================================================
@@ -105,12 +107,15 @@ lua_State* Create_GEluaS(char *prog, bool readglobal){
    if (readglobal){
       // Carrega variaveis globais int no script
       MSG("Carregando variaveis globais no script");
-      for (int i = 0; i < DMAXVAR_I && strcmp(GEVARNAME_I[i], "NULL") != 0; i++){
+      for (int i = 0; i < DMAXVAR_I && strcmp(GEVARNAME_I[i], "NULL") != 0 && strlen(GEVARNAME_I[i])>0; i++){
          snprintf(tmp, DMAXLINESCRIPT, "%s = \"%d\";", GEVARNAME_I[i], getGEI(i));
+         // TVARS(tmp);
          luaL_dostring(L, tmp);
       }
 //---------------------------------------------------
       for (int i = 0 ; i < sprites; i++){
+         // TVARD(i);
+         // TVARS(GE_sprite[i].name);
          snprintf(tmp, DMAXLINESCRIPT, "sprt_%s_hide=%d", GE_sprite[i].name, GE_sprite[i].hide);
          // TVARS(tmp);
          luaL_dostring(L, tmp);

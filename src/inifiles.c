@@ -24,7 +24,7 @@ char *ini_get_str(	const char *section,
 
 	snprintf(t_section, sizeof(char) * 255, "[%s]", section);
 
-	// bzero(sread, 255);
+	// memset(sread, 0, 255);
 	memset(sread,0, 255);
 	// TVARS(sname_file);
 	if ((inifile = fopen(sname_file, "r")) == NULL){
@@ -58,7 +58,7 @@ char *ini_get_str(	const char *section,
 			// read lines of section
 			if (isprint(ch) && !isspace(ch)){
 				xx = 0;
-				bzero(term1, 255);
+				memset(term1, 0, 255);
 				while (!feof(inifile) && ('=' != ch) && (isprint(ch))){
 
 					if (isalnum(ch) || ch == '_' || ch == ':' ) term1[xx++] = ch;
@@ -76,13 +76,13 @@ char *ini_get_str(	const char *section,
 					}
 				}
 
-				bzero(term2, 255);
+				memset(term2, 0, 255);
 				if (ch == '=') term2[0] = ch;
 
 				ch = getc(inifile);
 				xx = 0;
 
-				bzero(term3, 255);
+				memset(term3, 0, 255);
 
 				// skip the initial spaces
 				if (ch == ' ') while (!feof(inifile) && isspace(ch = getc(inifile)));;
@@ -133,7 +133,7 @@ void *ini_get_malloc_str(
   
 	// DBG("%lu bytes Reserved", sizeof(char) * (strlen(svalue) + 1));
 
-	bzero(spatt, sizeof(char) * (strlen(svalue) + 1));
+	memset(spatt, 0, sizeof(char) * (strlen(svalue) + 1));
 	char *buffer;
 	long int i = 0;
 	size_t ta;
@@ -145,7 +145,7 @@ void *ini_get_malloc_str(
 		ERR("Out of memory: (%s)\n", svalue);
 		exit(1);
 	}
-	bzero(buffer, ta);
+	memset(buffer, 0, ta);
 	if ((inifile = fopen(sname_file, "r")) == NULL)
 	{
 		ERR("INI File Read Error: %s\n", sname_file);
@@ -276,7 +276,7 @@ bool ini_get_nsession( char *section, int ene){
     if ((inifile = fopen(sname_file, "r")) == NULL) {
 	   ERR("INI File Read Error: %s\n",sname_file);
 	}
-	// bzero(csect,sizeof(csect));
+	// memset(csect, 0,sizeof(csect));
 	while(1){
        ch = getc(inifile);
 	   if(feof(inifile)) break;
@@ -317,7 +317,7 @@ bool ini_get_inline( char *section, char *sline, int ene){
 	//snprintf(t_section, sizeof(char) * 255, "[%s]", section);
 	LETSF(t_section, "[%s]", section);
 
-	bzero(sread, sizeof(sread));
+	memset(sread, 0, sizeof(sread));
 
 	if ((inifile = fopen(sname_file, "r")) == NULL){
 		ERR("INI File Read Error: %s\n", sname_file);
@@ -355,7 +355,7 @@ bool ini_get_inline( char *section, char *sline, int ene){
 
 		if (isprint(ch) && enable){
 			xx = 0;
-			bzero(line, sizeof(line));
+			memset(line, 0, sizeof(line));
 
 			while (!feof(inifile) && (isprint(ch))){
 				line[xx++] = ch;
@@ -392,8 +392,8 @@ FILE *ini_fopen_inline( char *section, char *inlinesection)
 
 	LETSF(t_section, "[%s]", section);
 
-	bzero(sread, sizeof(sread));
-	bzero(inlinesread, sizeof(inlinesread));
+	memset(sread, 0, sizeof(sread));
+	memset(inlinesread, 0, sizeof(inlinesread));
 
 	if ((inifile = fopen(sname_file, "r")) == NULL){
 		ERR("INI File Read Error: %s\n", sname_file);
@@ -427,7 +427,7 @@ search_section:
 		if (isprint(ch) && ch != '{' && !inlineenable){
 			inlinesread[xx++] = ch;
 		}else if (!isprint(ch)){
-			bzero(inlinesread, sizeof(inlinesread));
+			memset(inlinesread, 0, sizeof(inlinesread));
 			xx = 0;
 		}
 
@@ -462,7 +462,7 @@ search_section:
 			return inifile;
 		}
 		inlineenable = false;
-		bzero(inlinesread, sizeof(inlinesread));
+		memset(inlinesread, 0, sizeof(inlinesread));
 		xx = 0;
 		ch=getc(inifile);
 		goto search_section;
@@ -476,7 +476,7 @@ char *ini_get_next_inline(FILE *inifile, bool scanfullsection ) {
 	char ch;
     bool inlineenable=true;
 
-	bzero(sinline, sizeof(sinline));
+	memset(sinline, 0, sizeof(sinline));
 	ch = getc(inifile);
 	while (!feof(inifile)) {   
 		if(!isprint(ch)) {
@@ -503,7 +503,7 @@ char *ini_get_next_inline(FILE *inifile, bool scanfullsection ) {
 		}
 		if (isprint(ch) && inlineenable) {
 			xx = 0;
-			bzero(sinline, sizeof(sinline));
+			memset(sinline, 0, sizeof(sinline));
 			while (!feof(inifile) && (isprint(ch))) {
 				sinline[xx++] = ch;
 				ch = getc(inifile);
@@ -525,7 +525,7 @@ char *ini_get_lua( char *section, char *inlinename){
 	MALETS(prog, "");
     // DBG("==================================================================");
 	if ((myinline = ini_fopen_inline(section, inlinename))){
-		bzero(linha, sizeof(linha));
+		memset(linha, 0, sizeof(linha));
 		while (true){
 			LETS(linha, ini_get_next_inline(myinline, false));
 			

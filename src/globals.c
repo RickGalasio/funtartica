@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <strings.h>
+#define DCONTEXT extern
 #include "globals.h"
 #include "debug.h"
 #include "gelua.h"
@@ -20,6 +21,7 @@
 ///if(!regexcmp("<[[:alnum:]]+>", xval)){ ...}
 ///if(!regexcmp("([^[:space:]_]+_[^[:space:]_]+)_([[:digit:]]+)_([[:digit:]]+)(_[+-])?", xval)){ ...}
 //-------------------------------------------------------------------
+
 //=====================================================v
 void *alocstr(char *a){
 void *retaloc;
@@ -65,6 +67,7 @@ int Quit_GE(void){
 
 //=====================================================
 int setGEvarI(char *VarNameString, int varValorI){
+   //DBG("set %s = %d",VarNameString, varValorI);
    if (!strncasecmp(VarNameString, "sprt_", 5)){
       //Sprite Variables
       int nv;
@@ -224,13 +227,6 @@ int getGEvarI(char *VarNameString){
 }
 
 //=====================================================
-int getmaxvars(void){
-   return maxvars;
-}
-// int setmaxvars(int x){
-//    return maxvars=x;
-// }
-
 char *getvarnamei(int idx){
    return GEVARNAME_I[idx];
 }
@@ -239,14 +235,6 @@ int getGEI(int idx){
    return GEI[idx];
 }
 
-
-void setgepause(bool setpause){
-   gepause=setpause;
-}
-
-bool getgepause(void){
-   return gepause;
-}
 // void draw_rectangle(SDL_Surface* surface, int x, int y, int width, int height)
 // {
 //     SDL_LockSurface(surface);

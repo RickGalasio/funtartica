@@ -1,7 +1,5 @@
 #include "playsound.h"
-#include "debug.h"
-#include "globals.h"
-#include "inifiles.h"
+
 
 void GE_load_sounds(void){
   if (Mix_AllocateChannels(ini_get_int("sound", "channels", 2)) < 0){

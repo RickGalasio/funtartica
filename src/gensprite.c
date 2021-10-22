@@ -71,7 +71,7 @@ SDL_Texture *gensprite( char *spriteN, SDL_Renderer *rendscr){
 		ERR("Out of Memory.");
 		exit(1);
 	}
-	bzero(pixmask, sizeof(unsigned char) * spriteh * spritew);
+	memset(pixmask, 0, sizeof(unsigned char) * spriteh * spritew);
 	y = 0;
 	for (;;){
 		LETS(linha, ini_get_next_inline(myinline, false));
@@ -96,7 +96,7 @@ SDL_Texture *gensprite( char *spriteN, SDL_Renderer *rendscr){
 		ERR("Out of Memory.");
 		exit(1);
 	}
-	bzero(pixel, sizeof(char) * spriteh * spritew);
+	memset(pixel, 0, sizeof(char) * spriteh * spritew);
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	tmpsurface = SDL_CreateRGBSurface(0, width, height, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
@@ -151,7 +151,7 @@ SDL_Texture *gensprite( char *spriteN, SDL_Renderer *rendscr){
 	}
 
 	for (int y1 = 0; y1 < spriteh; y1++){
-		bzero(xline, (sizeof(char) * spritew + 1));
+		memset(xline, 0, (sizeof(char) * spritew + 1));
 		for (int x1 = 0; x1 < spritew; x1++){
 
 			switch (PIXEL(x1, y1)){

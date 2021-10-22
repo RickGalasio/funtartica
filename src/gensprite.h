@@ -1,5 +1,6 @@
 #ifndef _GENSPRITE_H_
 #define _GENSPRITE_H_
+#define DCONTEXT extern
 #include "globals.h"
 #include "debug.h"
 #include "config.h"

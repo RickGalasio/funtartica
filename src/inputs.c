@@ -1,21 +1,14 @@
 #include "inputs.h"
-#include "config.h"
-#include "globals.h"
-#include "playsound.h"
-#include "debug.h"
-#include "console.h"
 
 int inputs(){
-	SDL_Event e;
 	e.type = 0;
 	SDL_PollEvent(&e);
 	state = SDL_GetKeyboardState(NULL);
 
-    // Other SDL events--------vvv
+	// Other SDL events--------vvv
 	if (e.type == SDL_QUIT){
-		// SDL_free(state);
 		DBG("CLOSE [X] EXITING......NOW");
-		return (1); //Scape
+		GE_quit(0);
 	}
 	// Other SDL events--------^^^
 
@@ -23,23 +16,23 @@ int inputs(){
 
 	// F12 open/close terminal
 	if (state[SDL_SCANCODE_F12] && e.type == SDL_KEYDOWN){
-		toggleconsole();
-		inputmode = consoleon() ? terminal : play;
+		console=!console;
+		inputmode = console ? terminal : play;
 	}
 
 	if (inputmode == play){
 		// ['] or [.] open terminal
 		if ((state[SDL_SCANCODE_GRAVE] || state[SDL_SCANCODE_PERIOD] )&& e.type == SDL_KEYDOWN){
-			setconsole(true);
+			console=true;
 			inputmode = terminal;
 		}
 		if ((state[SDL_SCANCODE_GRAVE] || state[SDL_SCANCODE_SLASH] )&& e.type == SDL_KEYDOWN){
-			setconsole(true);
+			console=true;
 			inputmode = terminal;
 		}
 
 		// [ESC] close play (TODO: Change inputmode to menu.)
-		if (state[SDL_SCANCODE_ESCAPE] && e.type == SDL_KEYDOWN) return(1);        
+		if (state[SDL_SCANCODE_ESCAPE] && e.type == SDL_KEYDOWN) GE_quit(0);        
 
 		// TODO: SCRIPT DE INPUT----vv
 		if (e.type == SDL_KEYUP && !state[SDL_SCANCODE_SPACE] && pressed_fire) 
@@ -79,7 +72,7 @@ int inputs(){
 
         // TOUCH -------------------VVV
 		if(e.type == SDL_FINGERDOWN){
-			autoshot = SDL_GetTicks() + 100;
+			// autoshot = SDL_GetTicks() + 100;
 			GE_sprite[SPT_SHIP].pos.x = e.tfinger.x * width;
 		}
 		//Touch motion
@@ -96,7 +89,7 @@ int inputs(){
 
 		// [ESC] to close terminal
 		if(state[SDL_SCANCODE_ESCAPE] && e.type == SDL_KEYDOWN){
-			toggleconsole();
+			console=!console;
 			inputmode = play;
 
 		// [CTRL]+[BACKSPACE] to delete a word to the left of the cursor.
@@ -136,10 +129,10 @@ int inputs(){
 					LETS(term[history].txt,tmp);
 					LETS(term[history].txt_,"");
 				    
-					DBG("Executa: %s",tmp);
+					DBG("Exec(1): %s",tmp);
 					if(execconsole(tmp)){			
-						// bzero(consoletxt, sizeof(consoletxt));
-						// bzero(consoletxt_, sizeof(consoletxt_));
+						// memset(consoletxt, 0, sizeof(consoletxt));
+						// memset(consoletxt_, 0, sizeof(consoletxt_));
 					}
 					history++;
 					if(history>termlinesview) history=0;
@@ -163,12 +156,13 @@ int inputs(){
 				    e.type == SDL_KEYDOWN
 				){
 			LETSF(tmp, "%s%s",consoletxt,consoletxt_);
-			DBG("Executa: %s",tmp);
+			
+			DBG("%d)Exec(2): %s",history,tmp);
 			LETS(term[history].txt,consoletxt);
 			LETS(term[history].txt_,consoletxt_);
 			if(execconsole(tmp)){			
-				// bzero(consoletxt, sizeof(consoletxt));
-				// bzero(consoletxt_, sizeof(consoletxt_));
+				//  memset(consoletxt, 0, sizeof(consoletxt));
+				//  memset(consoletxt_, 0, sizeof(consoletxt_));
 			}
 			
 			history++;
@@ -239,22 +233,22 @@ int inputs(){
 
 		// [CTRL]+[END]- Delete all characters after the cursor.
 		}else if(SDL_GetModState() & KMOD_CTRL && state[SDL_SCANCODE_END]  && e.type == SDL_KEYDOWN ){
-			bzero(consoletxt_, sizeof(consoletxt_));
+			memset(consoletxt_, 0, sizeof(consoletxt_));
 
 		// Moves the cursor to the end of line.
 		}else if(state[SDL_SCANCODE_END]  && e.type == SDL_KEYDOWN ){
 			LETSF(tmp,"%s%s",consoletxt,consoletxt_);
-			bzero(consoletxt_, sizeof(consoletxt_));
+			memset(consoletxt_, 0, sizeof(consoletxt_));
 			LETS(consoletxt,tmp);
 
 		// [CTRL]+[HOME] - Delete all characters before the cursor.
 		}else if(SDL_GetModState() & KMOD_CTRL && state[SDL_SCANCODE_HOME]  && e.type == SDL_KEYDOWN ){
-			bzero(consoletxt, sizeof(consoletxt));
+			memset(consoletxt, 0, sizeof(consoletxt));
 
 		// Moves the cursor to the begin of line.
 		}else if(state[SDL_SCANCODE_HOME]  && e.type == SDL_KEYDOWN ){
 			LETSF(tmp,"%s%s",consoletxt,consoletxt_);
-			bzero(consoletxt, sizeof(consoletxt));
+			memset(consoletxt, 0, sizeof(consoletxt));
 			LETS(consoletxt_,tmp);
 		}
 

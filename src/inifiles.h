@@ -1,11 +1,13 @@
 #ifndef _INIFILES_H
 #define _INIFILES_H
-#include "config.h"
-#include "globals.h"
 #include <stdbool.h>
+#include "config.h"
 
-char sret[255 * 2];
-char sinline[1024 * 2];
+#define DCONTEXT extern
+#include "globals.h"
+
+static char sret[255 * 2];
+static char sinline[1024 * 2];
 
 static char *sname_file;
 void ini_set_configfile(char *fname);

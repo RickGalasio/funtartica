@@ -8,6 +8,7 @@ static struct tm *ptr;
 static time_t lt;
 static char TNow[80];
 
+#ifndef NOLOG
 void __dbg__( char *log_mess, char *n_file ,int n_line ){
 char filelogname[255];
 
@@ -19,10 +20,10 @@ char filelogname[255];
       lt=time(NULL);
       ptr=localtime(&lt);
       sprintf(TNow,"%s",asctime(ptr));
-      TNow[strlen(TNow)-1]='\0';
-
-      fprintf(logfile, "%s-:%s:%d:%s\n", TNow,n_file,n_line,log_mess);
+      TNow[strlen(TNow)-1]='\0';     
       fprintf(stderr, "%s-:%s:%d:%s\n", TNow,n_file,n_line,log_mess);
+      fprintf(logfile, "%s-:%s:%d:%s\n", TNow,n_file,n_line,log_mess);
+
 	  fflush(logfile);
       fclose(logfile);
    }
@@ -52,7 +53,23 @@ snprintf(filelogname, sizeof filelogname, FILELOG);
       fclose(logfile);
    }
 }
-
+#else
+void __dbg__( char *log_mess, char *n_file ,int n_line ){
+   lt=time(NULL);
+   ptr=localtime(&lt);
+   sprintf(TNow,"%s",asctime(ptr));
+   TNow[strlen(TNow)-1]='\0';     
+   fprintf(stderr, "]%s-:%s:%d:%s\n", TNow,n_file,n_line,log_mess);
+}
+//-----------------------------------------------------------------------------------------
+void __dbg_init__( char *log_mess, char *n_file ,int n_line ){
+   lt=time(NULL);
+   ptr=localtime(&lt);
+   sprintf(TNow,"%s",asctime(ptr));
+   TNow[strlen(TNow)-1]='\0';
+   fprintf( stderr, DEBUGBANNER "[DBG] (%s)-:%s:%d:%s\n", TNow,n_file,n_line,log_mess);
+}
+#endif
 /**********************************************************************/
 
 

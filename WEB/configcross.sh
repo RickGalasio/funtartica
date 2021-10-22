@@ -5,6 +5,16 @@ LUA_VERSION=5.3.4
 PREFIX=$(pwd)/lualib
 mkdir -p $PREFIX
 
+cd ..
+printf "Chose: \n$(ls *.ini)\n(ge.ini): "
+read INI
+if [ "X$INI" == "X" ]; then
+   INI=ge.ini
+fi
+cd WEB
+
+echo "Selecionado:[$INI]"
+
 if [ ! -d emsdk ]; then
    git clone https://github.com/emscripten-core/emsdk.git
    cd emsdk
@@ -15,14 +25,12 @@ if [ ! -d emsdk ]; then
    ./emsdk activate latest
    cd ../
 fi
-set -xv 
+
 cd emsdk
 # Activate PATH and other environment variables in the current terminal
 . ./emsdk_env.sh
 echo source ./emsdk_env.sh
 cd ../
-
-emcc -v
 
 if [ ! -f lua-${LUA_VERSION}.tar.gz ]; then
  wget  http://www.lua.org/ftp/lua-${LUA_VERSION}.tar.gz 
@@ -43,22 +51,16 @@ make generic CC='emcc -s WASM=1' AR='emar rcu' RANLIB='emranlib'
 make install
 cd ..
 
-pwd
-
 if [ -d ASSETS ] ; then
    rm -fr ASSETS 
 fi
 
 mkdir ASSETS
-
 cd ..
 
-echo -n "Chose: $(ls *.ini|tr '\n' ' '):(ge.ini)"
-read INI
-if [ "X$INI" == "X" ]; then
-   INI=ge.ini
-fi
+tar cf - $(egrep -v "^#|^$" $INI | egrep ".*=.*\.png$|.*=.*\.ogg$|.*=.*\.ttf" | sed 's|legend.*=..||g' | sed 's|.*=||g') | tar xvf - -C WEB/ASSETS
 
-tar cf - $(egrep -v "^#|^$" $INI | egrep ".*=.*\.png$|.*=.*\.ogg$|.*=.*\.ttf" | cut -d= -f2) | tar xvf - -C WEB/ASSETS
-cp $INI WEB/ASSETS
+cp $INI WEB/ASSETS/ge.ini
+cp img/not_found.png WEB/ASSETS/img
 
+# ref: https://github.com/emscripten-core/emscripten/issues/11985

@@ -1,14 +1,4 @@
-#include <strings.h>
-#include <math.h>
 #include "ge.h"
-#include "gelua.h"
-#include "inifiles.h"
-#include "globals.h"
-#include "debug.h"
-#include "config.h"
-#include "inputs.h"
-#include "getileset.h"
-#include "gensprite.h"
 
 //---------------------------------------------------------------v
 // fast parse variables in strigs
@@ -72,7 +62,7 @@ void GE_load_fonts(void){
 		LETS(filenamefont, ini_get_str( sfont, "file", "./ttf/Arcade.ttf"));
 		font[nf].x = ini_get_int( sfont, "x", 0);
 		font[nf].y = ini_get_int( sfont, "y", 0);
-		font[nf].hide = ini_get_bool( sfont, "hide", hide);
+		font[nf].hide = ini_get_bool( sfont, "hide", ini_get_bool( "global", "hide", false));
 
 		MALETS(font[nf].text, ini_get_str( sfont, "text", "NULL"));
 
@@ -111,7 +101,6 @@ void GE_load_fonts(void){
 }
 
 void GE_load_debug_box(void){
-    ldebug = ini_get_bool( "global", "debug", false);
 	hide = ini_get_bool( "global", "hide", false);
 	showbox = ini_get_bool( "global", "showbox", false);
 	consoleborder = ini_get_int( "global", "consoleborder",20);
@@ -130,9 +119,13 @@ void GE_load_sprites(void){
 		LETSF(spriteN, "sprite%d", sprites + 1);
 
 		// Load Sprite variables in inifile
+        TVARD(sprites);
 		MALETS(GE_sprite[sprites].name, ini_get_str( spriteN, "name", "noname"));
+		TVARS(GE_sprite[sprites].name);
+		TVARS(ini_get_str( spriteN, "name", "noname"));
+
 		// TVARS(GE_sprite[sprites].name);
-		GE_sprite[sprites].hide = ini_get_bool( spriteN, "hide", hide);
+		GE_sprite[sprites].hide = ini_get_bool( spriteN, "hide", ini_get_bool( "global", "hide", hide));
 		GE_sprite[sprites].showbox = ini_get_bool( spriteN, "showbox", showbox);
 
 		//## Load Lua scripts
@@ -284,16 +277,308 @@ void GE_create_clone_sprites(){
 	}
 	//==Load bullets from GE_sprite[SPT_BULLET]============================================================================^
 }
+void GE_loop(void *arg){
+//	while ( 1 ){
+		if (inputs()) return;
+		if (!gepause){
+			//-run-global-update-script------------v
+			if (gupdateok){
+				if (GLSCRIPT){
+					if (luaL_dofile(GLSCRIPT, filescript)){
+						ERR("%s\n", lua_tostring(GLSCRIPT, -1));
+						return;
+					}
+				}else{
+					MSG("Script lua não iniciado anteriormente.");
+				}
+			}
+			//-run-global-update-script------------^
 
+			//-run-sprites-update-scripts------------v
+			//-run-sprites-update-scripts------------^
+
+			//-Move Bullet ------------------v
+			// for (int ibullet = 0; ibullet < DBULLETS; ibullet++){
+			// 	//---check bullet colision---------------------------------------------v
+			// 	//DBG("bullets[%d].hide=%d",ibullet,bullets[ibullet].hide);
+			// 	if (bullets[ibullet].hide == false){
+			// 		bullets[ibullet].pos.y -= 1;
+			// 		if (bullets[ibullet].pos.y < 0){
+			// 			bullets[ibullet].hide = true;
+			// 			bullets[ibullet].pos.y = 0;
+			// 		}
+			// 		if (!GE_sprite[SPT_BUG].hide){
+			// 			a.x = bullets[ibullet].pos.x + bullets[ibullet].boxattack.x;
+			// 			a.y = bullets[ibullet].pos.y + bullets[ibullet].boxattack.y;
+			// 			a.w = bullets[ibullet].boxattack.w;
+			// 			a.h = bullets[ibullet].boxattack.h;
+			// 			a.x = bullets[ibullet].pos.x + bullets[ibullet].boxdefense.x;
+			// 			a.y = bullets[ibullet].pos.y + bullets[ibullet].boxdefense.y;
+			// 			a.w = bullets[ibullet].boxdefense.w;
+			// 			a.h = bullets[ibullet].boxdefense.h;
+			// 			b.x = GE_sprite[SPT_BUG].pos.x + GE_sprite[SPT_BUG].boxdefense.x;
+			// 			b.y = GE_sprite[SPT_BUG].pos.y + GE_sprite[SPT_BUG].boxdefense.y;
+			// 			b.w = GE_sprite[SPT_BUG].boxdefense.w;
+			// 			b.h = GE_sprite[SPT_BUG].boxdefense.h;
+			// 			if (SDL_HasIntersection(&a, &b)){
+			// 				GE_sprite[SPT_BUG].hide = false;
+			// 				bullets[ibullet].hide = true;
+			// 				playSound(1, 3, 0); // Play boom.ogdefenseg
+			// 				setGEvarI("sprt_bug_life", getGEvarI("sprt_bug_life") - 1);
+			// 				if (getGEvarI("sprt_bug_life") <= 0){
+			// 					setGEvarI("sprt_bug_hide", true);
+			// 					playSound(3, 0, 0); // Play ???
+			// 				}
+			// 				retractexplosion = SDL_GetTicks() + 400;
+			// 				setGEvarI("sprt_explosion_hide", false);
+			// 				setGEvarI("sprt_explosion_x", getGEvarI("sprt_bug_x"));
+			// 				setGEvarI("sprt_explosion_y", getGEvarI("sprt_bug_y"));
+			// 				//## Implementar Variaveis sprt_NAME_animationX
+			// 				GE_sprite[SPT_EXPLOSION].animation[0].frameidx = 0;
+			// 			}
+			// 		}
+			// 	}//---check bullet colision---------------------------------------------v
+			//}//-move bullet------------------^
+		}
+
+		// Clear background.
+		if (clearbg == -1){
+			SDL_SetRenderDrawColor(rendscr, bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
+		}
+
+		//-Render GE_sprites---------------------------------------------V
+		for (int sprti = 0; sprti < sprites; sprti++){
+			if (!GE_sprite[sprti].hide){
+				// Script Sprite Update-------------------------------------v
+				if (strlen(GE_sprite[sprti].fileupdate)){
+					//MSG("[Sprite:(%s) update script:{%s}]",GE_sprite[sprti].name,GE_sprite[sprti].fileupdate );
+					//GE_sprite[sprites].SPRTSCRIPT=Create_GElua(GE_sprite[sprites].filestart,true);
+					if(!gepause){
+						if (GLSCRIPT){
+							if (luaL_dofile(GLSCRIPT, GE_sprite[sprti].fileupdate)){
+								ERR("%s\n", lua_tostring(GLSCRIPT, -1));
+							}
+						}else{
+							MSG("Script lua não iniciado anteriormente.");
+						}
+					}
+				}
+				// Script Sprite Update-------------------------------------^
+				
+				if (sprti == clearbg){
+					SDL_RenderCopy(rendscr,
+							GE_sprite[sprti].animation[0].textFrame[GE_sprite[sprti].animation[0].frameidx],
+							NULL, NULL);
+				}else{
+					if (GE_sprite[sprti].flip){
+						SDL_RenderCopyEx(rendscr,
+							GE_sprite[sprti].animation[0].textFrame[GE_sprite[sprti].animation[0].frameidx],
+							NULL, &GE_sprite[sprti].pos,
+							0,
+							NULL,
+							SDL_FLIP_HORIZONTAL);
+					}else{
+						SDL_RenderCopy(rendscr,
+							GE_sprite[sprti].animation[0].textFrame[GE_sprite[sprti].animation[0].frameidx],
+							NULL, &GE_sprite[sprti].pos);
+					}
+				}
+				//--step-for-Sprite-animations--------v
+				// if(GE_sprite[sprti].animation[0].anitype!=none) // Not animated
+				if (GE_sprite[sprti].animation[0].anitype == loop &&
+					GE_sprite[sprti].tick < SDL_GetTicks()){
+					GE_sprite[sprti].tick = SDL_GetTicks() + GE_sprite[sprti].animation[0].speed;
+
+					if (!gepause) GE_sprite[sprti].animation[0].frameidx++;
+
+					if (GE_sprite[sprti].animation[0].frameidx >= GE_sprite[sprti].animation[0].maxframes){
+						GE_sprite[sprti].animation[0].frameidx = 0;
+					}
+				}else if (GE_sprite[sprti].animation[0].anitype == forward && GE_sprite[sprti].tick < SDL_GetTicks()){
+					GE_sprite[sprti].tick = SDL_GetTicks() + GE_sprite[sprti].animation[0].speed;
+
+					if (!gepause) GE_sprite[sprti].animation[0].frameidx++;
+
+					if (GE_sprite[sprti].animation[0].frameidx >= GE_sprite[sprti].animation[0].maxframes){
+						GE_sprite[sprti].animation[0].frameidx = GE_sprite[sprti].animation[0].maxframes - 1;
+					}
+				}
+				//--step-for-Sprite-animations--------^
+
+				//-----Draw boxes in sprites----------------------v
+				//### -- Calcular direito o tamanho dos boxes
+				if (GE_sprite[sprti].showbox){
+					rect.x = GE_sprite[sprti].pos.x;
+					rect.y = GE_sprite[sprti].pos.y;
+					rect.w = GE_sprite[sprti].pos.w;
+					rect.h = GE_sprite[sprti].pos.h;
+					SDL_SetRenderDrawColor(rendscr,
+										sptboxcolor.r,
+										sptboxcolor.g,
+										sptboxcolor.b, 255);
+					SDL_RenderDrawRect(rendscr, &rect);
+					rect.x = GE_sprite[sprti].boxdefense.x;
+					rect.y = GE_sprite[sprti].boxdefense.y;
+					rect.w = GE_sprite[sprti].boxdefense.w;
+					rect.h = GE_sprite[sprti].boxdefense.h;
+					SDL_SetRenderDrawColor(rendscr,
+										defenseboxcolor.r,
+										defenseboxcolor.g,
+										defenseboxcolor.b, 255);
+					SDL_RenderDrawRect(rendscr, &rect);
+					rect.x = GE_sprite[sprti].boxattack.x;
+					rect.y = GE_sprite[sprti].boxattack.y;
+					rect.w = GE_sprite[sprti].boxattack.w;
+					rect.h = GE_sprite[sprti].boxattack.h;
+					SDL_SetRenderDrawColor(rendscr,
+										attackboxcolor.r,
+										attackboxcolor.g,
+										attackboxcolor.b, 255);
+					SDL_RenderDrawRect(rendscr, &rect);
+				}
+				//-----Draw boxes in sprites----------------------^
+			}
+		}
+		//-Render GE_sprites---------------------------------------------^
+
+		// //-Render bullets---------------------------------------------v
+		// for (ibullet = 0; ibullet < DBULLETS; ibullet++){
+		// 	if (!bullets[ibullet].hide){
+		// 		// Transparency
+		// 		// SDL_SetTextureAlphaMod(bullets[ibullet].animation[0].textFrame[bullets[ibullet].animation[0].frameidx],50);
+		// 		SDL_RenderCopy(rendscr, bullets[ibullet].animation[0].textFrame[bullets[ibullet].animation[0].frameidx],
+		// 					NULL, &bullets[ibullet].pos);
+		// 	}
+		// }
+		// //-Render bullets---------------------------------------------^
+
+		//-Render ttf-------------------------------------------------v
+		for (nf = 0; nf <= fonts; nf++){
+			if (!font[nf].hide){
+				SDL_Surface *sttftmp;
+				linetext = parservar(font[nf].text);
+				sttftmp = TTF_RenderText_Blended(font[nf].body, linetext, font[nf].color);
+				free(linetext);
+				texturefont = SDL_CreateTextureFromSurface(rendscr, sttftmp);
+				SDL_QueryTexture(texturefont, NULL, NULL, &texW, &texH); // Get texturefont dimensions
+				textrect.x = font[nf].x;
+				textrect.y = font[nf].y;
+				textrect.w = texW;
+				textrect.h = texH;
+				SDL_RenderCopy(rendscr, texturefont, NULL, &textrect);
+
+				SDL_DestroyTexture(texturefont); // TODO: Recreate only if linetext has changes.
+				texturefont = NULL;
+
+				SDL_FreeSurface(sttftmp); // sttftmp = NULL;
+			}
+		}
+		//-Render ttf-------------------------------------------------^
+
+		//-Rener console----------------------------------------------v
+		renderconsole(rendscr, width, height, consoleborder);
+		//-Rener console----------------------------------------------^
+
+		//### -- Atualiza a tela
+		SDL_RenderPresent(rendscr); // Atualiza para tela real e mostra tudo.
+
+		//-Calculate FPS----------------------------------------v
+		tnow = SDL_GetTicks() - tstart;
+		if (tnow >= SECOND){
+			setGEvarI("fps", fps);
+			fps = 0;
+			tstart = SDL_GetTicks();
+		}
+		fps++;
+		//-Calculate FPS----------------------------------------^
+//	}
+	//== FIM LOOP ==================================================================================^^^^
+}
+
+void GE_quit(int exitcode){
+	// Quit_GE:
+	MSG("Finaliza GE ...");
+	//--Free bullets-------------------v
+	MSG("Free bullets");
+	for (int i = 0; i < DBULLETS; i++) SDL_DestroyTexture(bullets[i].animation[0].textFrame[0]); 
+	//--Free bullets-------------------^
+
+	//--Free sprites-------------------V
+	// int maxsprites=ini_get_int( "global", "sprites", 1);
+	int maxanimations;
+	int maxframes;
+	for (int i = 0; i < sprites; i++){
+		LETSF(spriteN, "sprite%d", i + 1);
+		maxanimations=ini_get_int( spriteN, "animations", 1);
+		for (int animations = 0; animations < maxanimations; animations++){
+			LETSF(animationSTUFFS, "anima%d", animations + 1);
+			maxframes=ini_get_int( spriteN, animationSTUFFS, 1);
+			FREESEC(GE_sprite[i].fileupdate);
+			FREESEC(GE_sprite[i].filestart);
+			FREESEC(GE_sprite[i].fileend);
+			for (int frame = 0; frame < maxframes; frame++){
+				SDL_DestroyTexture(GE_sprite[i].animation[animations].textFrame[frame]);
+			}
+		}
+	}
+	//--Free sprites-------------------^
+	
+	//--Free fonts-------------------v
+	for (nf = 0; nf <= fonts; nf++) 
+		FREESEC(font[nf].text); 
+	//--Free fonts-------------------^
+
+	MSG("SDL_DestroyTexture(textureconsole)");
+	freeconsole();
+	
+	MSG("Unload sounds...");
+	Quit_sound();
+
+	MSG("Unload GE functions");
+	Quit_GE();
+
+	if (GLSCRIPT!=NULL){
+		MSG("Unload LUA Scripts");
+		destroy_GElua(GLSCRIPT);
+	}
+
+	MSG("Unload icon...");
+	SDL_FreeSurface(icon);
+
+	MSG("Unload Window..."); 
+	SDL_DestroyWindow(windscr);
+
+	MSG("Unload render de tela...");
+	SDL_DestroyRenderer(rendscr);	
+
+	MSG("Unload Mix Audio...");
+	Mix_CloseAudio();
+	
+	MSG("IMG_Quit()");
+	IMG_Quit();
+
+	MSG("SDL_Quit()");
+	SDL_Quit();
+	
+	// MSG("free configfile...[%s]",configfile);
+	// FREESEC(configfile);
+	
+	MSG("free(filescriptend)");
+	FREESEC(filescriptend);
+
+	MSG("free(filescript)");
+	FREESEC(filescript);
+	
+	DBG("END.");
+	exit( exitcode );
+}
 
 //---------------------------------------------------------------v
 int main(int argc, char *argv[]){
 	DBG_INIT("START G.ENGINE");
-	
 	DBG("srand");
 	srand(time(0));
 	msrand(time(0));
-
 	//--parametrer of command line----------------------v
 	// MALETS( "./ge.ini");
 	ini_set_configfile("./ge.ini");
@@ -391,20 +676,14 @@ int main(int argc, char *argv[]){
 	tstart = SDL_GetTicks(); // inicia contadores de FPS
 	fps = 0;
 	setGEvarI("fps", 0);
+	setGEvarI("galasio", 1973);
 	//-Init. FPS---^
 
-	int clearbg = ini_get_int( "global", "clear", 0) - 1;
+	clearbg = ini_get_int( "global", "clear", 0) - 1;
 
 	ini_get_color(&bgcolor, "global", "color", "ff,00,00,ff");
 	//========================================================================================VVVV
-	SDL_Rect rect;
-	SDL_Rect a, b;
 
-	// start script
-	int texW = 0;
-	int texH = 0;
-	SDL_Rect textrect;
-	int nf, ibullet;
 	char *prog;
 
     DBG("INICIANDO sistema unico de scripts...(sem threads)");
@@ -416,7 +695,7 @@ int main(int argc, char *argv[]){
 	}else{
 		prog=ini_get_lua( "scripts", "start");
 		if(prog){
-		// DBG("Creating GLSCRIPT from inline start{.. of [scripts] section of %s ini file.",configfile);
+		DBG("Creating GLSCRIPT from inline start{.. of [scripts] section");
 		GLSCRIPT = Create_GEluaS(prog, true);
 		free(prog);
 		}else{
@@ -427,7 +706,6 @@ int main(int argc, char *argv[]){
 	free(filescript); // for reuse in update script in main loop
 	
     GE_create_clone_sprites();
-
 
 	// DBG("ADD AND RUN SPRITES SCRIPTS ### REFAC:%d", sprites);
 	for (int i = 0; i < sprites; i++){
@@ -463,304 +741,21 @@ int main(int argc, char *argv[]){
 	}
 	
 	console=false;
-	setgepause(false);
+	gepause=false;
 	inputmode=play;
 	clearconsoletext();
 	//== LOOP ======================================================================================vvvv
 	DBG("Main Loop...");
 
-	while (!quit){
-		if (inputs()) goto Quit_GE;
-		if (!getgepause()){
-			//-run-global-update-script------------v
-			if (gupdateok){
-				if (GLSCRIPT){
-					if (luaL_dofile(GLSCRIPT, filescript)){
-						ERR("%s\n", lua_tostring(GLSCRIPT, -1));
-						goto Quit_GE;
-					}
-				}else{
-					MSG("Script lua não iniciado anteriormente.");
-				}
-			}
-			//-run-global-update-script------------^
-
-			//-run-sprites-update-scripts------------v
-
-			//-run-sprites-update-scripts------------^
-
-			//-Move Bullet ------------------v
-			for (ibullet = 0; ibullet < DBULLETS; ibullet++){
-				//---check bullet colision---------------------------------------------v
-				//DBG("bullets[%d].hide=%d",ibullet,bullets[ibullet].hide);
-				if (bullets[ibullet].hide == false){
-					bullets[ibullet].pos.y -= 1;
-					if (bullets[ibullet].pos.y < 0){
-						bullets[ibullet].hide = true;
-						bullets[ibullet].pos.y = 0;
-					}
-					if (!GE_sprite[SPT_BUG].hide){
-						a.x = bullets[ibullet].pos.x + bullets[ibullet].boxattack.x;
-						a.y = bullets[ibullet].pos.y + bullets[ibullet].boxattack.y;
-						a.w = bullets[ibullet].boxattack.w;
-						a.h = bullets[ibullet].boxattack.h;
-						a.x = bullets[ibullet].pos.x + bullets[ibullet].boxdefense.x;
-						a.y = bullets[ibullet].pos.y + bullets[ibullet].boxdefense.y;
-						a.w = bullets[ibullet].boxdefense.w;
-						a.h = bullets[ibullet].boxdefense.h;
-						b.x = GE_sprite[SPT_BUG].pos.x + GE_sprite[SPT_BUG].boxdefense.x;
-						b.y = GE_sprite[SPT_BUG].pos.y + GE_sprite[SPT_BUG].boxdefense.y;
-						b.w = GE_sprite[SPT_BUG].boxdefense.w;
-						b.h = GE_sprite[SPT_BUG].boxdefense.h;
-						if (SDL_HasIntersection(&a, &b)){
-							GE_sprite[SPT_BUG].hide = false;
-							bullets[ibullet].hide = true;
-							playSound(1, 3, 0); // Play boom.ogdefenseg
-							setGEvarI("sprt_bug_life", getGEvarI("sprt_bug_life") - 1);
-							if (getGEvarI("sprt_bug_life") <= 0){
-								setGEvarI("sprt_bug_hide", true);
-								playSound(3, 0, 0); // Play ???
-							}
-							retractexplosion = SDL_GetTicks() + 400;
-							setGEvarI("sprt_explosion_hide", false);
-							setGEvarI("sprt_explosion_x", getGEvarI("sprt_bug_x"));
-							setGEvarI("sprt_explosion_y", getGEvarI("sprt_bug_y"));
-							//## Implementar Variaveis sprt_NAME_animationX
-							GE_sprite[SPT_EXPLOSION].animation[0].frameidx = 0;
-						}
-					}
-				}//---check bullet colision---------------------------------------------v
-			}//-move bullet------------------^
-		}
-
-		// Clear background.
-		if (clearbg == -1){
-			SDL_SetRenderDrawColor(rendscr, bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
-		}
-
-		//-Render GE_sprites---------------------------------------------V
-		for (int sprti = 0; sprti < sprites; sprti++){
-			if (!GE_sprite[sprti].hide){
-				// Script Sprite Update-------------------------------------v
-				if (strlen(GE_sprite[sprti].fileupdate)){
-					//MSG("[Sprite:(%s) update script:{%s}]",GE_sprite[sprti].name,GE_sprite[sprti].fileupdate );
-					//GE_sprite[sprites].SPRTSCRIPT=Create_GElua(GE_sprite[sprites].filestart,true);
-					if(!getgepause()){
-						if (GLSCRIPT){
-							if (luaL_dofile(GLSCRIPT, GE_sprite[sprti].fileupdate)){
-								ERR("%s\n", lua_tostring(GLSCRIPT, -1));
-							}
-						}else{
-							MSG("Script lua não iniciado anteriormente.");
-						}
-					}
-				}
-				// Script Sprite Update-------------------------------------^
-				
-				if (sprti == clearbg){
-					SDL_RenderCopy(rendscr,
-							GE_sprite[sprti].animation[0].textFrame[GE_sprite[sprti].animation[0].frameidx],
-							NULL, NULL);
-				}else{
-					if (GE_sprite[sprti].flip){
-						SDL_RenderCopyEx(rendscr,
-							GE_sprite[sprti].animation[0].textFrame[GE_sprite[sprti].animation[0].frameidx],
-							NULL, &GE_sprite[sprti].pos,
-							0,
-							NULL,
-							SDL_FLIP_HORIZONTAL);
-					}else{
-						SDL_RenderCopy(rendscr,
-							GE_sprite[sprti].animation[0].textFrame[GE_sprite[sprti].animation[0].frameidx],
-							NULL, &GE_sprite[sprti].pos);
-					}
-				}
-				//--step-for-Sprite-animations--------v
-				// if(GE_sprite[sprti].animation[0].anitype!=none) // Not animated
-				if (GE_sprite[sprti].animation[0].anitype == loop &&
-					GE_sprite[sprti].tick < SDL_GetTicks()){
-					GE_sprite[sprti].tick = SDL_GetTicks() + GE_sprite[sprti].animation[0].speed;
-
-					if (!getgepause()) GE_sprite[sprti].animation[0].frameidx++;
-
-					if (GE_sprite[sprti].animation[0].frameidx >= GE_sprite[sprti].animation[0].maxframes){
-						GE_sprite[sprti].animation[0].frameidx = 0;
-					}
-				}else if (GE_sprite[sprti].animation[0].anitype == forward && GE_sprite[sprti].tick < SDL_GetTicks()){
-					GE_sprite[sprti].tick = SDL_GetTicks() + GE_sprite[sprti].animation[0].speed;
-
-					if (!getgepause()) GE_sprite[sprti].animation[0].frameidx++;
-
-					if (GE_sprite[sprti].animation[0].frameidx >= GE_sprite[sprti].animation[0].maxframes){
-						GE_sprite[sprti].animation[0].frameidx = GE_sprite[sprti].animation[0].maxframes - 1;
-					}
-				}
-				//--step-for-Sprite-animations--------^
-
-				//-----Draw boxes in sprites----------------------v
-				//### -- Calcular direito o tamanho dos boxes
-				if (GE_sprite[sprti].showbox){
-					rect.x = GE_sprite[sprti].pos.x;
-					rect.y = GE_sprite[sprti].pos.y;
-					rect.w = GE_sprite[sprti].pos.w;
-					rect.h = GE_sprite[sprti].pos.h;
-					SDL_SetRenderDrawColor(rendscr,
-										sptboxcolor.r,
-										sptboxcolor.g,
-										sptboxcolor.b, 255);
-					SDL_RenderDrawRect(rendscr, &rect);
-					rect.x = GE_sprite[sprti].boxdefense.x;
-					rect.y = GE_sprite[sprti].boxdefense.y;
-					rect.w = GE_sprite[sprti].boxdefense.w;
-					rect.h = GE_sprite[sprti].boxdefense.h;
-					SDL_SetRenderDrawColor(rendscr,
-										defenseboxcolor.r,
-										defenseboxcolor.g,
-										defenseboxcolor.b, 255);
-					SDL_RenderDrawRect(rendscr, &rect);
-					rect.x = GE_sprite[sprti].boxattack.x;
-					rect.y = GE_sprite[sprti].boxattack.y;
-					rect.w = GE_sprite[sprti].boxattack.w;
-					rect.h = GE_sprite[sprti].boxattack.h;
-					SDL_SetRenderDrawColor(rendscr,
-										attackboxcolor.r,
-										attackboxcolor.g,
-										attackboxcolor.b, 255);
-					SDL_RenderDrawRect(rendscr, &rect);
-				}
-				//-----Draw boxes in sprites----------------------^
-			}
-		}
-		//-Render GE_sprites---------------------------------------------^
-
-		//-Render bullets---------------------------------------------v
-		for (ibullet = 0; ibullet < DBULLETS; ibullet++){
-			if (!bullets[ibullet].hide){
-				// Transparency
-				// SDL_SetTextureAlphaMod(bullets[ibullet].animation[0].textFrame[bullets[ibullet].animation[0].frameidx],50);
-				SDL_RenderCopy(rendscr, bullets[ibullet].animation[0].textFrame[bullets[ibullet].animation[0].frameidx],
-							NULL, &bullets[ibullet].pos);
-			}
-		}
-		//-Render bullets---------------------------------------------^
-
-		//-Render ttf-------------------------------------------------v
-		for (nf = 0; nf <= fonts; nf++){
-			if (!font[nf].hide){
-				SDL_Surface *sttftmp;
-				linetext = parservar(font[nf].text);
-				sttftmp = TTF_RenderText_Blended(font[nf].body, linetext, font[nf].color);
-				free(linetext);
-				texturefont = SDL_CreateTextureFromSurface(rendscr, sttftmp);
-				SDL_QueryTexture(texturefont, NULL, NULL, &texW, &texH); // Get texturefont dimensions
-				textrect.x = font[nf].x;
-				textrect.y = font[nf].y;
-				textrect.w = texW;
-				textrect.h = texH;
-				SDL_RenderCopy(rendscr, texturefont, NULL, &textrect);
-
-				SDL_DestroyTexture(texturefont); // TODO: Recreate only if linetext has changes.
-				texturefont = NULL;
-
-				SDL_FreeSurface(sttftmp); // sttftmp = NULL;
-			}
-		}
-		//-Render ttf-------------------------------------------------^
-
-		//-Rener console----------------------------------------------v
-		renderconsole(rendscr, width, height, consoleborder);
-		//-Rener console----------------------------------------------^
-
-		//### -- Atualiza a tela
-		// goto Quit_GE;
-		SDL_RenderPresent(rendscr); // Atualiza para tela real e mostra tudo.
-
-		//-Calculate FPS----------------------------------------v
-		tnow = SDL_GetTicks() - tstart;
-		if (tnow >= SECOND){
-			setGEvarI("fps", fps);
-			fps = 0;
-			tstart = SDL_GetTicks();
-		}
-		fps++;
-		//-Calculate FPS----------------------------------------^
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(GE_loop, NULL, -1, 1);
+#else
+    while( 1 ) {
+		GE_loop(NULL);
 	}
-	//== FIM LOOP ==================================================================================^^^^
+#endif
 
-	Quit_GE:
-	MSG("Finaliza GE ...");
-	//--Free bullets-------------------v
-	MSG("Free bullets");
-	for (int i = 0; i < DBULLETS; i++) SDL_DestroyTexture(bullets[i].animation[0].textFrame[0]); 
-	//--Free bullets-------------------^
-
-	//--Free sprites-------------------V
-	// int maxsprites=ini_get_int( "global", "sprites", 1);
-	int maxanimations;
-	int maxframes;
-	for (int i = 0; i < sprites; i++){
-		LETSF(spriteN, "sprite%d", i + 1);
-		maxanimations=ini_get_int( spriteN, "animations", 1);
-		for (int animations = 0; animations < maxanimations; animations++){
-			LETSF(animationSTUFFS, "anima%d", animations + 1);
-			maxframes=ini_get_int( spriteN, animationSTUFFS, 1);
-			FREESEC(GE_sprite[i].fileupdate);
-			FREESEC(GE_sprite[i].filestart);
-			FREESEC(GE_sprite[i].fileend);
-			for (int frame = 0; frame < maxframes; frame++){
-				SDL_DestroyTexture(GE_sprite[i].animation[animations].textFrame[frame]);
-			}
-		}
-	}
-	//--Free sprites-------------------^
 	
-	//--Free fonts-------------------v
-	for (nf = 0; nf <= fonts; nf++) 
-		FREESEC(font[nf].text); 
-	//--Free fonts-------------------^
-
-	MSG("SDL_DestroyTexture(textureconsole)");
-	freeconsole();
-	
-	MSG("Unload sounds...");
-	Quit_sound();
-
-	MSG("Unload GE functions");
-	Quit_GE();
-
-	if (GLSCRIPT!=NULL){
-		MSG("Unload LUA Scripts");
-		destroy_GElua(GLSCRIPT);
-	}
-
-	MSG("Unload icon...");
-	SDL_FreeSurface(icon);
-
-	MSG("Unload Window..."); 
-	SDL_DestroyWindow(windscr);
-
-	MSG("Unload render de tela...");
-	SDL_DestroyRenderer(rendscr);	
-
-	MSG("Unload Mix Audio...");
-	Mix_CloseAudio();
-	
-	MSG("IMG_Quit()");
-	IMG_Quit();
-
-	MSG("SDL_Quit()");
-	SDL_Quit();
-	
-	// MSG("free configfile...[%s]",configfile);
-	// FREESEC(configfile);
-	
-	MSG("free(filescriptend)");
-	FREESEC(filescriptend);
-
-	MSG("free(filescript)");
-	FREESEC(filescript);
-	
-	DBG("END.");
 	return 0;
 }
 // - EOF

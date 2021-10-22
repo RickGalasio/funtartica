@@ -21,12 +21,8 @@ void __dbg_init__( char *log_mess, char *n_file ,int n_line);
 
 void __dbg__( char *log_mess, char *n_file ,int n_line );
 
-char dbg_mess[ 255 ];
+static char dbg_mess[ 255 ];
 
 #endif
-
-
-
-
 
 // - EOF
