@@ -10,6 +10,12 @@ Compile to Linux
 ./configure  
 make
 ```
+Compile to web (webassemby)
+
+```bash
+./configure -c emcc
+make
+```
 Cross compile to Windows  
 
 ```bash
@@ -25,13 +31,13 @@ The advanced ./configure parameters:
 
 ```bash
 Parameters:  
- -h,-help,--help  - This help message.  
- -c,--compiler [gcc|clang]  - Select compiler.  
- -d,--debug  - Enable debug mode.  
- --no-debug - Disable debug mode.  
- -l,--lua [luajit|lua51|lua53]  - Select LUA version.  
- -m,--mem  - Debug memory leak (sanitizer).  
- --no-mem  - Disable sanitizer memory leak debug.  
+ -h,-help,--help  - This help message.
+ -c,--compiler [gcc|clang|mingw|emcc]  - Select compiler.
+ -d,--debug  - Enable debug mode.
+ --no-debug - Disable debug mode.
+ -l,--lua [luajit|lua51|lua53]  - Select LUA version.
+ -m,--mem # Debug memory leak (sanitizer).
+ --no-mem  - Disable sanitizer memory leak debug.
 ```
 
 ### Run  
